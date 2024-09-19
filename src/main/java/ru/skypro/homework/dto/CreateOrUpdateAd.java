@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CreateOrUpdateAd {
 
-    private String title;
+    private int author;
+    private String image;
+    private int pk;
     private int price;
-    private String description;
-    private Long userId;
-    private Long imageAdId;
+    private String title;
 }

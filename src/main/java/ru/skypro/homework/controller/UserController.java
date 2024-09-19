@@ -1,5 +1,12 @@
 package ru.skypro.homework.controller;
 
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -12,7 +19,11 @@ import java.util.Map;
  * REST-контроллер для управления пользователями.
  * Обрабатывает запросы на обновление информации о пользователе, его пароля и аватара.
  */
+@Slf4j
 @RestController
+@Tag(name = "Пользователи", description = "API для управления пользователями")
+@RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/users")
 public class UserController {
 
@@ -22,9 +33,24 @@ public class UserController {
      * @param newPassword карта с новыми значениями пароля, где ключ – это старый пароль и новый пароль
      * @return сообщение о статусе обновления пароля
      */
-    @Operation(summary = "Обновление пароля")
+    @Operation(
+            summary = "Обновление пароля",
+            description = "Позволяет авторизованному пользователю обновить свой пароль"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Password updated successfully",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "400", description = "Bad Request",
+                    content = @Content),
+            @ApiResponse(responseCode = "401", description = "Unauthorized",
+                    content = @Content),
+            @ApiResponse(responseCode = "403", description = "Forbidden",
+                    content = @Content)
+    })
     @PostMapping("/set_password")
     public ResponseEntity<String> setPassword(@RequestBody Map<String, String> newPassword) {
+        log.info("Обновление пароля для пользователя");
         // TODO: Логика в методе класса сервиса для обновления пароля
         return ResponseEntity.ok("Password updated successfully.");
     }
@@ -34,9 +60,22 @@ public class UserController {
      *
      * @return информация о текущем авторизованном пользователе
      */
-    @Operation(summary = "Получение информации об авторизованном пользователе")
+    @Operation(
+            summary = "Получение информации об авторизованном пользователе",
+            description = "Возвращает информацию о текущем авторизованном пользователе"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = User.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized",
+                    content = @Content),
+            @ApiResponse(responseCode = "403", description = "Forbidden",
+                    content = @Content)
+    })
     @GetMapping("/me")
     public ResponseEntity<User> getUser() {
+        log.info("Получение информации об авторизованном пользователе");
         // TODO: Логика в методе класса сервиса для получения информации о пользователе
         return ResponseEntity.ok(new User());
     }
@@ -47,10 +86,25 @@ public class UserController {
      * @param updateUser объект с новыми данными пользователя
      * @return обновлённая информация о пользователе
      */
-    @Operation(summary = "Обновление информации об авторизованном пользователе")
+    @Operation(
+            summary = "Обновление информации об авторизованном пользователе",
+            description = "Позволяет авторизованному пользователю обновить свои личные данные"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User updated successfully",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = User.class))),
+            @ApiResponse(responseCode = "400", description = "Bad Request",
+                    content = @Content),
+            @ApiResponse(responseCode = "401", description = "Unauthorized",
+                    content = @Content),
+            @ApiResponse(responseCode = "403", description = "Forbidden",
+                    content = @Content)
+    })
     @PatchMapping("/me")
     public ResponseEntity<User> updateUser(@RequestBody User updateUser) {
-        // TODO: Логика в методе класса сервисаа для обновления информации о пользователе
+        log.info("Обновление информации об авторизованном пользователе");
+        // TODO: Логика в методе класса сервиса для обновления информации о пользователе
         return ResponseEntity.ok(updateUser);
     }
 
@@ -60,9 +114,24 @@ public class UserController {
      * @param image файл изображения, который будет установлен как аватар
      * @return сообщение о статусе обновления аватара
      */
-    @Operation(summary = "Обновление аватара авторизованного пользователя")
+    @Operation(
+            summary = "Обновление аватара авторизованного пользователя",
+            description = "Позволяет авторизованному пользователю обновить свой аватар"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User image updated successfully",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "400", description = "Bad Request",
+                    content = @Content),
+            @ApiResponse(responseCode = "401", description = "Unauthorized",
+                    content = @Content),
+            @ApiResponse(responseCode = "403", description = "Forbidden",
+                    content = @Content)
+    })
     @PatchMapping("/me/image")
     public ResponseEntity<String> updateUserImage(@RequestParam("image") MultipartFile image) {
+        log.info("Обновление аватара пользователя");
         // TODO: Логика в методе класса обновления аватара
         return ResponseEntity.ok("User image updated successfully.");
     }
