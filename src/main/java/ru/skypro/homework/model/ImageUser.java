@@ -37,4 +37,7 @@ public class ImageUser {
     @JoinColumn(name = "id_user")
     @JsonIgnore
     private User user;
+
+    @OneToOne
+    private Ad ad;
 }

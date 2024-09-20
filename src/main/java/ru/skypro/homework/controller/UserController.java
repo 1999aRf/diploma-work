@@ -7,9 +7,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import ru.skypro.homework.dto.NameAndPhoneDto;
+import ru.skypro.homework.dto.NewPassword;
 import ru.skypro.homework.model.User;
 import io.swagger.v3.oas.annotations.Operation;
 
@@ -39,8 +42,7 @@ public class UserController {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Password updated successfully",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = String.class))),
+                    content = @Content),
             @ApiResponse(responseCode = "400", description = "Bad Request",
                     content = @Content),
             @ApiResponse(responseCode = "401", description = "Unauthorized",
@@ -69,8 +71,6 @@ public class UserController {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = User.class))),
             @ApiResponse(responseCode = "401", description = "Unauthorized",
-                    content = @Content),
-            @ApiResponse(responseCode = "403", description = "Forbidden",
                     content = @Content)
     })
     @GetMapping("/me")
@@ -93,16 +93,14 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User updated successfully",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = User.class))),
+                            schema = @Schema(implementation = NameAndPhoneDto.class))),
             @ApiResponse(responseCode = "400", description = "Bad Request",
                     content = @Content),
             @ApiResponse(responseCode = "401", description = "Unauthorized",
-                    content = @Content),
-            @ApiResponse(responseCode = "403", description = "Forbidden",
                     content = @Content)
     })
     @PatchMapping("/me")
-    public ResponseEntity<User> updateUser(@RequestBody User updateUser) {
+    public ResponseEntity<NameAndPhoneDto> updateUser(@RequestBody NameAndPhoneDto updateUser) {
         log.info("Обновление информации об авторизованном пользователе");
         // TODO: Логика в методе класса сервиса для обновления информации о пользователе
         return ResponseEntity.ok(updateUser);
@@ -120,8 +118,8 @@ public class UserController {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User image updated successfully",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = String.class))),
+                    content = @Content(mediaType = "MultipartFile",
+                            schema = @Schema(implementation = MultipartFile.class))),
             @ApiResponse(responseCode = "400", description = "Bad Request",
                     content = @Content),
             @ApiResponse(responseCode = "401", description = "Unauthorized",
@@ -129,7 +127,7 @@ public class UserController {
             @ApiResponse(responseCode = "403", description = "Forbidden",
                     content = @Content)
     })
-    @PatchMapping("/me/image")
+    @PatchMapping(value = "/me/image",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> updateUserImage(@RequestParam("image") MultipartFile image) {
         log.info("Обновление аватара пользователя");
         // TODO: Логика в методе класса обновления аватара

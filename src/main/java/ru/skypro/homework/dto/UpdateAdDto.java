@@ -7,11 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateOrUpdateAd {
-
-    private int author;
-    private String image;
-    private int pk;
-    private int price;
+public class UpdateAdDto {
     private String title;
+    private long price;
+    private String description;
 }
