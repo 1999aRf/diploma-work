@@ -140,7 +140,7 @@ paths:
               type: object
               properties:
                 properties:
-                  $ref: '#/components/schemas/CreateOrUpdateAd'
+                  $ref: '#/components/schemas/AdDto'
                 image:
                   type: string
                   format: binary
@@ -268,7 +268,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateOrUpdateAd'
+              $ref: '#/components/schemas/AdDto'
       responses:
         '200':
           description: OK
