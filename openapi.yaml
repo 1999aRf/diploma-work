@@ -140,7 +140,7 @@ paths:
               type: object
               properties:
                 properties:
-                  $ref: '#/components/schemas/AdDto'
+                  $ref: '#/components/schemas/CreateOrUpdateAdDto'
                 image:
                   type: string
                   format: binary
@@ -194,7 +194,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateOrUpdateComment'
+              $ref: '#/components/schemas/CreateOrUpdateCommentDto'
       responses:
         '200':
           description: OK
@@ -268,7 +268,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AdDto'
+              $ref: '#/components/schemas/CreateOrUpdateAdDto'
       responses:
         '200':
           description: OK
@@ -332,7 +332,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateOrUpdateComment'
+              $ref: '#/components/schemas/CreateOrUpdateCommentDto'
       responses:
         '200':
           description: OK

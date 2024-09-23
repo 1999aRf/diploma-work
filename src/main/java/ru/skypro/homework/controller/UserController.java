@@ -11,8 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import ru.skypro.homework.dto.NameAndPhoneDto;
-import ru.skypro.homework.dto.NewPassword;
+import ru.skypro.homework.dto.UpdateUserDto;
 import ru.skypro.homework.model.User;
 import io.swagger.v3.oas.annotations.Operation;
 
@@ -93,14 +92,14 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User updated successfully",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = NameAndPhoneDto.class))),
+                            schema = @Schema(implementation = UpdateUserDto.class))),
             @ApiResponse(responseCode = "400", description = "Bad Request",
                     content = @Content),
             @ApiResponse(responseCode = "401", description = "Unauthorized",
                     content = @Content)
     })
     @PatchMapping("/me")
-    public ResponseEntity<NameAndPhoneDto> updateUser(@RequestBody NameAndPhoneDto updateUser) {
+    public ResponseEntity<UpdateUserDto> updateUser(@RequestBody UpdateUserDto updateUser) {
         log.info("Обновление информации об авторизованном пользователе");
         // TODO: Логика в методе класса сервиса для обновления информации о пользователе
         return ResponseEntity.ok(updateUser);

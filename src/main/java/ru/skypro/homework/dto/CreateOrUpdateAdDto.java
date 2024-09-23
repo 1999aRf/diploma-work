@@ -7,9 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class NameAndPhoneDto {
-
-    private String firstName;
-    private String lastName;
-    private String phone;
+public class CreateOrUpdateAdDto {
+    private String title;
+    private int price;
+    private String description;
 }
