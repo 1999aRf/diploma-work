@@ -13,10 +13,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.AdDto;
+import ru.skypro.homework.dto.CreateOrUpdateAdDto;
 import ru.skypro.homework.dto.ExtendedAd;
-import ru.skypro.homework.dto.RecievedAdDto;
-import ru.skypro.homework.dto.UpdateAdDto;
-import ru.skypro.homework.model.Ad;
+import ru.skypro.homework.dto.AdsDto;
 
 import java.util.List;
 
@@ -41,12 +40,12 @@ public class AdsController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = RecievedAdDto.class)))
+                            schema = @Schema(implementation = AdsDto.class)))
     })
     @GetMapping
-    public ResponseEntity<List<RecievedAdDto>> getAllAds() {
+    public ResponseEntity<List<AdsDto>> getAllAds() {
         // TODO: Дополнить логику получения всех объявлений в сервисе получения всех объявлений
-        return ResponseEntity.ok(List.of(new RecievedAdDto()));
+        return ResponseEntity.ok(List.of(new AdsDto()));
     }
 
     /**
@@ -128,7 +127,7 @@ public class AdsController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = UpdateAdDto.class))),
+                            schema = @Schema(implementation = CreateOrUpdateAdDto.class))),
             @ApiResponse(responseCode = "401", description = "Unauthorized",
                     content = @Content),
             @ApiResponse(responseCode = "403", description = "Forbidden",
@@ -137,11 +136,11 @@ public class AdsController {
                     content = @Content)
     })
     @PatchMapping("/{id}")
-    public ResponseEntity<UpdateAdDto> updateAd(
+    public ResponseEntity<CreateOrUpdateAdDto> updateAd(
             @PathVariable("id") int id,
-            @RequestBody UpdateAdDto updateData) {
+            @RequestBody CreateOrUpdateAdDto updateData) {
         // TODO: Дополнить логику обновления объявления по значению id объявления
-        return ResponseEntity.ok(new UpdateAdDto());
+        return ResponseEntity.ok(new CreateOrUpdateAdDto());
     }
 
     /**
@@ -153,14 +152,14 @@ public class AdsController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = RecievedAdDto.class))),
+                            schema = @Schema(implementation = AdsDto.class))),
             @ApiResponse(responseCode = "401", description = "Unauthorized",
                     content = @Content)
     })
     @GetMapping("/me")
-    public ResponseEntity<RecievedAdDto> getMyAds() {
+    public ResponseEntity<AdsDto> getMyAds() {
         // TODO: Дополнить логику получения объявлений авторизованного пользователя
-        return ResponseEntity.ok(new RecievedAdDto());
+        return ResponseEntity.ok(new AdsDto());
     }
 
     /**

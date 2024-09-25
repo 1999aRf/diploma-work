@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import io.swagger.v3.oas.models.media.MediaType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,8 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.skypro.homework.dto.CreateOrUpdateComment;
-import ru.skypro.homework.dto.RecievedAdDto;
+import ru.skypro.homework.dto.CommentsDto;
+import ru.skypro.homework.dto.CreateOrUpdateCommentDto;
 import ru.skypro.homework.model.Comment;
 
 import java.util.List;
@@ -45,7 +44,8 @@ public class CommentsController {
             description = "Возвращает список всех комментариев для указанного объявления")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
-                    content = @Content(mediaType = "application/json")),
+                    content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = CommentsDto.class))),
             @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
             @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content),
             @ApiResponse(responseCode = "404", description = "Not Found", content = @Content)
@@ -79,7 +79,7 @@ public class CommentsController {
     @PostMapping
     public ResponseEntity<Comment> addComment(
             @PathVariable("adId") int adId,
-            @RequestBody CreateOrUpdateComment commentData) {
+            @RequestBody CreateOrUpdateCommentDto commentData) {
         log.info("Добавление комментария к объявлению с id {}", id);
         // TODO: Логика в классе сервиса добавления комментария
         return ResponseEntity.ok(new Comment());
@@ -134,7 +134,7 @@ public class CommentsController {
     public ResponseEntity<Comment> updateComment(
             @PathVariable("adId") int adId,
             @PathVariable("commentId") int commentId,
-            @RequestBody CreateOrUpdateComment commentData) {
+            @RequestBody CreateOrUpdateCommentDto commentData) {
         log.info("Обновление комментария с id {} для объявления с id {}", commentId, adId);
         // TODO: Логика в классе сервиса для обновления комментария
         return ResponseEntity.ok(new Comment());
