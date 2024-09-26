@@ -1,5 +1,6 @@
 package ru.skypro.homework.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -9,13 +10,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import ru.skypro.homework.dto.NewPassword;
 import ru.skypro.homework.dto.UpdateUserDto;
 import ru.skypro.homework.model.User;
-import io.swagger.v3.oas.annotations.Operation;
-
-import java.util.Map;
 
 /**
  * REST-контроллер для управления пользователями.
@@ -32,7 +32,7 @@ public class UserController {
     /**
      * Обновляет пароль авторизованного пользователя.
      *
-     * @param newPassword карта с новыми значениями пароля, где ключ – это старый пароль и новый пароль
+     * @param dto карта с новыми значениями пароля, где ключ – это старый пароль и новый пароль
      * @return сообщение о статусе обновления пароля
      */
     @Operation(
@@ -50,7 +50,8 @@ public class UserController {
                     content = @Content)
     })
     @PostMapping("/set_password")
-    public ResponseEntity<String> setPassword(@RequestBody Map<String, String> newPassword) {
+    public ResponseEntity<String> setPassword(@RequestBody NewPassword dto, Authentication authentication) {
+
         log.info("Обновление пароля для пользователя");
         // TODO: Логика в методе класса сервиса для обновления пароля
         return ResponseEntity.ok("Password updated successfully.");

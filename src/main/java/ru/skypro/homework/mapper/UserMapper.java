@@ -9,7 +9,7 @@ import ru.skypro.homework.dto.Register;
 import ru.skypro.homework.dto.UserDto;
 import ru.skypro.homework.model.User;
 
-@Mapper
+@Mapper(componentModel = "spring",unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface UserMapper {
 
 

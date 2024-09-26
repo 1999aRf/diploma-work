@@ -1,29 +1,28 @@
 package ru.skypro.homework.service;
 
+import lombok.RequiredArgsConstructor;
+import org.mapstruct.factory.Mappers;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import ru.skypro.homework.dto.AdDto;
+import ru.skypro.homework.dto.CreateOrUpdateAdDto;
+import ru.skypro.homework.mapper.AdMapper;
 import ru.skypro.homework.model.Ad;
 import ru.skypro.homework.model.User;
 import ru.skypro.homework.repositories.AdRepository;
-import ru.skypro.homework.mapper.AdMapper;
-import ru.skypro.homework.dto.CreateOrUpdateAdDto;
-import ru.skypro.homework.dto.AdDto;
 
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class AdsService {
-    private final AdRepository adRepository;
-    private final AdMapper adMapper;
 
-    public AdsService(AdRepository adRepository, AdMapper adMapper) {
-        this.adRepository = adRepository;
-        this.adMapper = adMapper;
-    }
+    private final AdRepository adRepository;
+    private final AdMapper adMapper = Mappers.getMapper(AdMapper.class);
 
 
     public List<AdDto> getAllAds() {
