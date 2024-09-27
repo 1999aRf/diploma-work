@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.NewPassword;
 import ru.skypro.homework.dto.UpdateUserDto;
+import ru.skypro.homework.dto.UserDto;
 import ru.skypro.homework.model.User;
 
 /**
@@ -74,10 +75,10 @@ public class UserController {
                     content = @Content)
     })
     @GetMapping("/me")
-    public ResponseEntity<User> getUser() {
+    public ResponseEntity<UserDto> getUser() {
         log.info("Получение информации об авторизованном пользователе");
         // TODO: Логика в методе класса сервиса для получения информации о пользователе
-        return ResponseEntity.ok(new User());
+        return ResponseEntity.ok(new UserDto());
     }
 
     /**
