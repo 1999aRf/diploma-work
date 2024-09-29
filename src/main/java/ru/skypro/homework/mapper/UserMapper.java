@@ -1,9 +1,6 @@
 package ru.skypro.homework.mapper;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Mappings;
-import org.mapstruct.ReportingPolicy;
+import org.mapstruct.*;
 import ru.skypro.homework.dto.*;
 import ru.skypro.homework.model.User;
 
@@ -65,9 +62,13 @@ public interface UserMapper {
     })
     NewPassword toNewPassword(User user);
 
-    User fromUserDtoToUser(UserDto dto, User user);
+    @Mappings({
+            @Mapping(source = "firstName", target = "firstName"),
+            @Mapping(source = "lastName", target = "lastName"),
+            @Mapping(source = "phone", target = "phone")
 
-    User fromUpdatedUserDtoToUser(UpdateUserDto dto, User user);
+    })
+    User fromUpdatedUserDtoToUser(UpdateUserDto dto, @MappingTarget User user);
 
     UpdateUserDto toUpdateUserDto(User user);
 }

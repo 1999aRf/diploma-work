@@ -1,28 +1,32 @@
 package ru.skypro.homework.service;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import ru.skypro.homework.dto.CommentDto;
+import ru.skypro.homework.exceptions.AdNotFoundException;
+import ru.skypro.homework.exceptions.CommentNotFoundException;
 import ru.skypro.homework.mapper.CommentMapper;
+import ru.skypro.homework.model.Ad;
 import ru.skypro.homework.model.Comment;
 import ru.skypro.homework.model.User;
+import ru.skypro.homework.repositories.AdRepository;
 import ru.skypro.homework.repositories.CommentRepository;
 
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
-
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class CommentService {
     private final CommentRepository commentRepository;
+    private final AdRepository adRepository;
     private final CommentMapper commentMapper;
 
-    public CommentService(CommentRepository commentRepository, CommentMapper commentMapper) {
-        this.commentRepository = commentRepository;
-        this.commentMapper = commentMapper;
-    }
 
     public List<CommentDto> getAllComments() {
         return commentRepository.findAll().stream()
@@ -72,5 +76,20 @@ public class CommentService {
     private User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return (User) authentication.getPrincipal();
+    }
+    public boolean isCommentBelongsThisUser(String nameOfAuthenticatedUser, Long adId,Long commentId) {
+        log.info("Проверка на принадлежность объявления текущему аутентифицированному пользователю");
+
+        Ad ad = adRepository.findById(adId).orElseThrow(AdNotFoundException::new);
+        List<Comment> foundCommentList = commentRepository.findCommentByAd(ad).orElseThrow(RuntimeException::new);
+        List<Comment> collect = foundCommentList.stream().filter(e -> e.getId() == commentId).collect(Collectors.toList());
+        Comment foundComment;
+        if (!collect.isEmpty()) {
+            foundComment = collect.get(0);
+        } else {
+            throw new CommentNotFoundException();
+        }
+
+        return foundComment.getUser().getEmail().equals(nameOfAuthenticatedUser);
     }
 }

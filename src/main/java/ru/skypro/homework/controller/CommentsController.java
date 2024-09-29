@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.skypro.homework.dto.CommentsDto;
 import ru.skypro.homework.dto.CreateOrUpdateCommentDto;
 import ru.skypro.homework.model.Comment;
+import ru.skypro.homework.service.CommentService;
 
 import java.util.List;
 
@@ -32,6 +34,7 @@ import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 @CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/ads/{adId}/comments")
 public class CommentsController {
+    private final CommentService commentService;
 
     /**
      * Получает список комментариев, связанных с указанным объявлением.
@@ -51,6 +54,7 @@ public class CommentsController {
             @ApiResponse(responseCode = "404", description = "Not Found", content = @Content)
     })
     @GetMapping
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')") // Разрешен вызов эндпоинта Админу и пользователю
     public ResponseEntity<List<Comment>> getComments(@PathVariable("adId") int adId) {
         log.info("Получение комментариев для объявления с id {}", id);
         // TODO: Логика в классе сервиса для получения комментариев
@@ -77,6 +81,7 @@ public class CommentsController {
             @ApiResponse(responseCode = "404", description = "Not Found", content = @Content)
     })
     @PostMapping
+    @PreAuthorize("hasRole('USER')") // Разрешен вызов эндпоинта Админу и пользователю
     public ResponseEntity<Comment> addComment(
             @PathVariable("adId") int adId,
             @RequestBody CreateOrUpdateCommentDto commentData) {
@@ -102,6 +107,8 @@ public class CommentsController {
             @ApiResponse(responseCode = "404", description = "Not Found", content = @Content)
     })
     @DeleteMapping("/{commentId}")
+    @PreAuthorize("hasRole('USER') and @commentService.isCommentBelongsThisUser(authentication.principal.name,#adId,#commentId)" +
+            " or hasRole('ADMIN')") // Разрешен вызов эндпоинта Админу и пользователю
     public ResponseEntity<Void> deleteComment(
             @PathVariable("adId") int adId,
             @PathVariable("commentId") int commentId) {
@@ -131,6 +138,8 @@ public class CommentsController {
             @ApiResponse(responseCode = "404", description = "Not Found", content = @Content)
     })
     @PatchMapping("/{commentId}")
+    @PreAuthorize("hasRole('USER') and @commentService.isCommentBelongsThisUser(authentication.principal.name,#adId,#commentId)" +
+            " or hasRole('ADMIN')") // Разрешен вызов эндпоинта Админу и пользователю
     public ResponseEntity<Comment> updateComment(
             @PathVariable("adId") int adId,
             @PathVariable("commentId") int commentId,

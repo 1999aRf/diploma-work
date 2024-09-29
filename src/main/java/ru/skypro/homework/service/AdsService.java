@@ -1,6 +1,7 @@
 package ru.skypro.homework.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.mapstruct.factory.Mappers;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
@@ -16,7 +17,7 @@ import ru.skypro.homework.repositories.AdRepository;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AdsService {
@@ -73,5 +74,12 @@ public class AdsService {
     private User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return (User) authentication.getPrincipal();
+    }
+
+    public boolean isAdBelongsThisUser(String nameOfAuthenticatedUser, Long id) {
+        log.info("Проверка на принадлежность объявления текущему аутентифицированному пользователю");
+
+        Ad foundAd = adRepository.findById(id).orElseThrow(RuntimeException::new);
+        return foundAd.getUser().getEmail().equals(nameOfAuthenticatedUser);
     }
 }

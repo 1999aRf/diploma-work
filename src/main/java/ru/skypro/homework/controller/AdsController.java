@@ -10,12 +10,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.AdDto;
 import ru.skypro.homework.dto.CreateOrUpdateAdDto;
 import ru.skypro.homework.dto.ExtendedAd;
 import ru.skypro.homework.dto.AdsDto;
+import ru.skypro.homework.service.AdsService;
 
 import java.util.List;
 
@@ -30,6 +33,7 @@ import java.util.List;
 @RequestMapping("/ads")
 @Tag(name = "Обьявления")
 public class AdsController {
+    private final AdsService adsService;
 
     /**
      * Получение всех объявлений.
@@ -64,6 +68,7 @@ public class AdsController {
                     content = @Content)
     })
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<AdDto> addAd(
             @RequestParam("image") MultipartFile image,
             @RequestParam("properties") AdDto adProperties) {
@@ -88,8 +93,13 @@ public class AdsController {
                     content = @Content)
     })
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('USER') and " + // Разрешен вызов эндпоинта авторизованному пользователю,
+            "@adsService.isAdBelongsThisUser(authentication.principal.username,#id) or"+  // если это объявление пренадлежит ему
+            "hasRole('ADMIN')") // Разрешен вызов эндпоинта Админу
+
     public ResponseEntity<ExtendedAd> getAdById(@PathVariable("id") int id) {
         // TODO: Дополнить логику получения объявления по значению id объявления
+        Authentication authentication;
         return ResponseEntity.ok(new ExtendedAd());
     }
 
@@ -111,6 +121,9 @@ public class AdsController {
                     content = @Content)
     })
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('USER') and " + // Разрешен вызов эндпоинта авторизованному пользователю,
+            "@adsService.isAdBelongsThisUser(authentication.principal.username,#id) or"+  // если это объявление пренадлежит ему
+            "hasRole('ADMIN')") // Разрешен вызов эндпоинта Админу
     public ResponseEntity<Void> deleteAd(@PathVariable("id") int id) {
         // TODO: Дополнить логику удаления объявления по значению идентификатора
         return ResponseEntity.noContent().build();
@@ -136,6 +149,9 @@ public class AdsController {
                     content = @Content)
     })
     @PatchMapping("/{id}")
+    @PreAuthorize("hasRole('USER') and " + // Разрешен вызов эндпоинта авторизованному пользователю,
+            "@adsService.isAdBelongsThisUser(authentication.principal.username,#id) or"+  // если это объявление пренадлежит ему
+            "hasRole('ADMIN')") // Разрешен вызов эндпоинта Админу
     public ResponseEntity<CreateOrUpdateAdDto> updateAd(
             @PathVariable("id") int id,
             @RequestBody CreateOrUpdateAdDto updateData) {
@@ -157,6 +173,8 @@ public class AdsController {
                     content = @Content)
     })
     @GetMapping("/me")
+    @PreAuthorize("hasRole('USER') and " + // Разрешен вызов эндпоинта авторизованному пользователю,
+            "@adsService.isAdBelongsThisUser(authentication.principal.username,#id) or") // если это объявление пренадлежит ему
     public ResponseEntity<AdsDto> getMyAds() {
         // TODO: Дополнить логику получения объявлений авторизованного пользователя
         return ResponseEntity.ok(new AdsDto());
@@ -181,6 +199,8 @@ public class AdsController {
                     content = @Content)
     })
     @PatchMapping(value = "/{id}/image",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('USER') and " + // Разрешен вызов эндпоинта авторизованному пользователю,
+            "@adsService.isAdBelongsThisUser(authentication.principal.username,#id) or")  // если это объявление пренадлежит ему
     public ResponseEntity<String> updateImage(
             @PathVariable("id") int id,
             @RequestParam("image") MultipartFile image) {
