@@ -3,6 +3,7 @@ package ru.skypro.homework.mapper;
 import org.mapstruct.*;
 import ru.skypro.homework.dto.CommentDto;
 import ru.skypro.homework.dto.CreateOrUpdateAdDto;
+import ru.skypro.homework.dto.CreateOrUpdateCommentDto;
 import ru.skypro.homework.model.Comment;
 
 @Mapper(componentModel = "spring",
@@ -10,7 +11,8 @@ import ru.skypro.homework.model.Comment;
 public interface CommentMapper {
 
 
-    Comment fromCreateOrUpdateAdDto(CreateOrUpdateAdDto dto);
+    Comment fromCreateOrUpdateCommentDto(CreateOrUpdateCommentDto dto);
+    CreateOrUpdateCommentDto toCreateOrUpdateCommentDto(Comment comment);
     @Mappings({
             @Mapping(source = "author",target = "user.id"),
             @Mapping(source = "authorImage",target = "user.imageUser",ignore =true),

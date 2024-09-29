@@ -9,6 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import ru.skypro.homework.dto.AdDto;
 import ru.skypro.homework.dto.CreateOrUpdateAdDto;
+import ru.skypro.homework.dto.ExtendedAd;
 import ru.skypro.homework.mapper.AdMapper;
 import ru.skypro.homework.model.Ad;
 import ru.skypro.homework.model.User;
@@ -31,11 +32,17 @@ public class AdsService {
                 .map(adMapper::toAdDto)
                 .collect(Collectors.toList());
     }
+  public List<AdDto> getMyAds() {
+        return adRepository.findAll().stream()
+                .filter(e -> e.getUser().equals(getCurrentUser()))
+                .map(adMapper::toAdDto)
+                .collect(Collectors.toList());
+    }
 
-    public AdDto getAdById(Long id) {
+    public ExtendedAd getAdById(Long id) {
         Ad ad = adRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Ad not found"));
-        return adMapper.toAdDto(ad);
+        return adMapper.toExtendedAd(ad);
     }
 
     public AdDto createAd(CreateOrUpdateAdDto adDto) {

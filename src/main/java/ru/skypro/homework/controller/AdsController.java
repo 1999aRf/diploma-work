@@ -47,9 +47,9 @@ public class AdsController {
                             schema = @Schema(implementation = AdsDto.class)))
     })
     @GetMapping
-    public ResponseEntity<List<AdsDto>> getAllAds() {
+    public ResponseEntity<List<AdDto>> getAllAds() {
         // TODO: Дополнить логику получения всех объявлений в сервисе получения всех объявлений
-        return ResponseEntity.ok(List.of(new AdsDto()));
+        return ResponseEntity.ok(adsService.getAllAds());
     }
 
     /**
@@ -71,9 +71,9 @@ public class AdsController {
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<AdDto> addAd(
             @RequestParam("image") MultipartFile image,
-            @RequestParam("properties") AdDto adProperties) {
-        // TODO: Дополнить логику добавления объявления в сервисе
-        return ResponseEntity.status(201).body(new AdDto());
+            @RequestParam("properties") CreateOrUpdateAdDto adProperties) {
+
+        return ResponseEntity.status(201).body(adsService.createAd(adProperties));
     }
 
     /**
@@ -94,13 +94,16 @@ public class AdsController {
     })
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('USER') and " + // Разрешен вызов эндпоинта авторизованному пользователю,
-            "@adsService.isAdBelongsThisUser(authentication.principal.username,#id) or"+  // если это объявление пренадлежит ему
+            "@adsService.isAdBelongsThisUser(authentication.principal.username,#id) or" +  // если это объявление пренадлежит ему
             "hasRole('ADMIN')") // Разрешен вызов эндпоинта Админу
 
-    public ResponseEntity<ExtendedAd> getAdById(@PathVariable("id") int id) {
-        // TODO: Дополнить логику получения объявления по значению id объявления
-        Authentication authentication;
-        return ResponseEntity.ok(new ExtendedAd());
+    public ResponseEntity<ExtendedAd> getAdById(@PathVariable("id") Long id) {
+        ExtendedAd ad = adsService.getAdById(id);
+        if (ad == null) {
+            return ResponseEntity.notFound().build();
+        } else {
+            return ResponseEntity.ok(ad);
+        }
     }
 
     /**
@@ -122,10 +125,10 @@ public class AdsController {
     })
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('USER') and " + // Разрешен вызов эндпоинта авторизованному пользователю,
-            "@adsService.isAdBelongsThisUser(authentication.principal.username,#id) or"+  // если это объявление пренадлежит ему
+            "@adsService.isAdBelongsThisUser(authentication.principal.username,#id) or" +  // если это объявление пренадлежит ему
             "hasRole('ADMIN')") // Разрешен вызов эндпоинта Админу
-    public ResponseEntity<Void> deleteAd(@PathVariable("id") int id) {
-        // TODO: Дополнить логику удаления объявления по значению идентификатора
+    public ResponseEntity<Void> deleteAd(@PathVariable("id") Long id) {
+        adsService.deleteAd(id);
         return ResponseEntity.noContent().build();
     }
 
@@ -150,13 +153,13 @@ public class AdsController {
     })
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('USER') and " + // Разрешен вызов эндпоинта авторизованному пользователю,
-            "@adsService.isAdBelongsThisUser(authentication.principal.username,#id) or"+  // если это объявление пренадлежит ему
+            "@adsService.isAdBelongsThisUser(authentication.principal.username,#id) or" +  // если это объявление пренадлежит ему
             "hasRole('ADMIN')") // Разрешен вызов эндпоинта Админу
-    public ResponseEntity<CreateOrUpdateAdDto> updateAd(
-            @PathVariable("id") int id,
+    public ResponseEntity<AdDto> updateAd(
+            @PathVariable("id") Long id,
             @RequestBody CreateOrUpdateAdDto updateData) {
-        // TODO: Дополнить логику обновления объявления по значению id объявления
-        return ResponseEntity.ok(new CreateOrUpdateAdDto());
+        AdDto ad = adsService.updateAd(id, updateData);
+        return ResponseEntity.ok(ad);
     }
 
     /**
@@ -174,10 +177,10 @@ public class AdsController {
     })
     @GetMapping("/me")
     @PreAuthorize("hasRole('USER') and " + // Разрешен вызов эндпоинта авторизованному пользователю,
-            "@adsService.isAdBelongsThisUser(authentication.principal.username,#id) or") // если это объявление пренадлежит ему
-    public ResponseEntity<AdsDto> getMyAds() {
-        // TODO: Дополнить логику получения объявлений авторизованного пользователя
-        return ResponseEntity.ok(new AdsDto());
+            "@adsService.isAdBelongsThisUser(authentication.principal.username,#id) or")
+    // если это объявление пренадлежит ему
+    public ResponseEntity<List<AdDto>> getMyAds() {
+        return ResponseEntity.ok(adsService.getMyAds());
     }
 
     /**
@@ -198,9 +201,10 @@ public class AdsController {
             @ApiResponse(responseCode = "404", description = "Not Found",
                     content = @Content)
     })
-    @PatchMapping(value = "/{id}/image",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PatchMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('USER') and " + // Разрешен вызов эндпоинта авторизованному пользователю,
-            "@adsService.isAdBelongsThisUser(authentication.principal.username,#id) or")  // если это объявление пренадлежит ему
+            "@adsService.isAdBelongsThisUser(authentication.principal.username,#id) or")
+    // если это объявление пренадлежит ему
     public ResponseEntity<String> updateImage(
             @PathVariable("id") int id,
             @RequestParam("image") MultipartFile image) {

@@ -17,6 +17,7 @@ import ru.skypro.homework.dto.NewPassword;
 import ru.skypro.homework.dto.UpdateUserDto;
 import ru.skypro.homework.dto.UserDto;
 import ru.skypro.homework.model.User;
+import ru.skypro.homework.service.UserService;
 
 /**
  * REST-контроллер для управления пользователями.
@@ -29,6 +30,7 @@ import ru.skypro.homework.model.User;
 @CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/users")
 public class UserController {
+    private final UserService userService;
 
     /**
      * Обновляет пароль авторизованного пользователя.
@@ -51,11 +53,15 @@ public class UserController {
                     content = @Content)
     })
     @PostMapping("/set_password")
-    public ResponseEntity<String> setPassword(@RequestBody NewPassword dto, Authentication authentication) {
+    public ResponseEntity<String> setPassword(@RequestBody NewPassword dto) {
 
         log.info("Обновление пароля для пользователя");
-        // TODO: Логика в методе класса сервиса для обновления пароля
-        return ResponseEntity.ok("Password updated successfully.");
+        if (userService.changePassword(dto) == null) {
+
+            return ResponseEntity.ok("Password updated successfully.");
+        } else {
+            return ResponseEntity.ok("Password is not updated");
+        }
     }
 
     /**
@@ -77,8 +83,7 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<UserDto> getUser() {
         log.info("Получение информации об авторизованном пользователе");
-        // TODO: Логика в методе класса сервиса для получения информации о пользователе
-        return ResponseEntity.ok(new UserDto());
+        return ResponseEntity.ok(userService.getAuthorizedUser());
     }
 
     /**
@@ -103,8 +108,7 @@ public class UserController {
     @PatchMapping("/me")
     public ResponseEntity<UpdateUserDto> updateUser(@RequestBody UpdateUserDto updateUser) {
         log.info("Обновление информации об авторизованном пользователе");
-        // TODO: Логика в методе класса сервиса для обновления информации о пользователе
-        return ResponseEntity.ok(updateUser);
+        return ResponseEntity.ok(userService.updateUserData(updateUser));
     }
 
     /**

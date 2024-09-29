@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.skypro.homework.dto.CommentDto;
 import ru.skypro.homework.dto.CommentsDto;
 import ru.skypro.homework.dto.CreateOrUpdateCommentDto;
 import ru.skypro.homework.model.Comment;
@@ -55,10 +56,10 @@ public class CommentsController {
     })
     @GetMapping
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')") // Разрешен вызов эндпоинта Админу и пользователю
-    public ResponseEntity<List<Comment>> getComments(@PathVariable("adId") int adId) {
-        log.info("Получение комментариев для объявления с id {}", id);
+    public ResponseEntity<CommentsDto> getComments(@PathVariable("adId") Long adId) {
+        log.info("Получение комментариев для объявления с id {}", adId);
         // TODO: Логика в классе сервиса для получения комментариев
-        return ResponseEntity.ok(List.of(new Comment()));
+        return ResponseEntity.ok(commentService.getComments(adId));
     }
 
     /**
@@ -82,12 +83,12 @@ public class CommentsController {
     })
     @PostMapping
     @PreAuthorize("hasRole('USER')") // Разрешен вызов эндпоинта Админу и пользователю
-    public ResponseEntity<Comment> addComment(
-            @PathVariable("adId") int adId,
+    public ResponseEntity<CommentDto> addComment(
+            @PathVariable("adId") Long adId,
             @RequestBody CreateOrUpdateCommentDto commentData) {
         log.info("Добавление комментария к объявлению с id {}", id);
         // TODO: Логика в классе сервиса добавления комментария
-        return ResponseEntity.ok(new Comment());
+        return ResponseEntity.ok(commentService.createComment(adId,commentData));
     }
 
     /**
@@ -111,9 +112,9 @@ public class CommentsController {
             " or hasRole('ADMIN')") // Разрешен вызов эндпоинта Админу и пользователю
     public ResponseEntity<Void> deleteComment(
             @PathVariable("adId") int adId,
-            @PathVariable("commentId") int commentId) {
+            @PathVariable("commentId") Long commentId) {
         log.info("Удаление комментария с id {} для объявления с id {}", commentId, adId);
-        // TODO: Логика в классе сервиса (метода) для удаления комментария
+        commentService.deleteComment(commentId);
         return ResponseEntity.ok().build();
     }
 
@@ -140,12 +141,12 @@ public class CommentsController {
     @PatchMapping("/{commentId}")
     @PreAuthorize("hasRole('USER') and @commentService.isCommentBelongsThisUser(authentication.principal.name,#adId,#commentId)" +
             " or hasRole('ADMIN')") // Разрешен вызов эндпоинта Админу и пользователю
-    public ResponseEntity<Comment> updateComment(
+    public ResponseEntity<CommentDto> updateComment(
             @PathVariable("adId") int adId,
-            @PathVariable("commentId") int commentId,
+            @PathVariable("commentId") Long commentId,
             @RequestBody CreateOrUpdateCommentDto commentData) {
         log.info("Обновление комментария с id {} для объявления с id {}", commentId, adId);
         // TODO: Логика в классе сервиса для обновления комментария
-        return ResponseEntity.ok(new Comment());
+        return ResponseEntity.ok(commentService.updateComment(commentId,commentData));
     }
 }

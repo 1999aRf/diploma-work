@@ -7,6 +7,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import ru.skypro.homework.dto.CommentDto;
+import ru.skypro.homework.dto.CommentsDto;
+import ru.skypro.homework.dto.CreateOrUpdateAdDto;
+import ru.skypro.homework.dto.CreateOrUpdateCommentDto;
 import ru.skypro.homework.exceptions.AdNotFoundException;
 import ru.skypro.homework.exceptions.CommentNotFoundException;
 import ru.skypro.homework.mapper.CommentMapper;
@@ -40,14 +43,17 @@ public class CommentService {
         return commentMapper.toCommentDto(comment);
     }
 
-    public CommentDto createComment(CommentDto commentDto) {
-        Comment comment = commentMapper.fromCommentDto(commentDto);
+    public CommentDto createComment(Long adId,CreateOrUpdateCommentDto commentDto) {
+        Ad ad = adRepository.findById(adId).orElseThrow(AdNotFoundException::new);
+
+        Comment comment = commentMapper.fromCreateOrUpdateCommentDto(commentDto);
         comment.setUser(getCurrentUser()); // Устанавливаем текущего пользователя как автора
+        comment.setAd(ad);
         commentRepository.save(comment);
         return commentMapper.toCommentDto(comment);
     }
 
-    public CommentDto updateComment(Long id, CommentDto commentDto) {
+    public CommentDto updateComment(Long id, CreateOrUpdateCommentDto commentDto) {
         Comment comment = commentRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Comment not found"));
 
@@ -56,7 +62,7 @@ public class CommentService {
             throw new AccessDeniedException("You do not have permission to edit this comment.");
         }
 
-        commentMapper.fromCommentDto(commentDto);
+        commentMapper.fromCreateOrUpdateCommentDto(commentDto);
         commentRepository.save(comment);
         return commentMapper.toCommentDto(comment);
     }
@@ -71,6 +77,15 @@ public class CommentService {
         }
 
         commentRepository.delete(comment);
+    }
+
+    public CommentsDto getComments(Long id) {
+        Ad ad = adRepository.findById(id).orElseThrow(AdNotFoundException::new);
+        List<Comment> commentList = commentRepository.findCommentByAd(ad).orElseThrow(CommentNotFoundException::new);
+        List<CommentDto> dtoList = commentList.stream()
+                .map(commentMapper::toCommentDto)
+                .collect(Collectors.toList());
+        return new CommentsDto(dtoList.size(), dtoList);
     }
 
     private User getCurrentUser() {
