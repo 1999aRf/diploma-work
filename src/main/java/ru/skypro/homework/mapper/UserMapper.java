@@ -1,15 +1,10 @@
 package ru.skypro.homework.mapper;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Mappings;
-import org.mapstruct.ReportingPolicy;
-import ru.skypro.homework.dto.Login;
-import ru.skypro.homework.dto.Register;
-import ru.skypro.homework.dto.UserDto;
+import org.mapstruct.*;
+import ru.skypro.homework.dto.*;
 import ru.skypro.homework.model.User;
 
-@Mapper
+@Mapper(componentModel = "spring",unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface UserMapper {
 
 
@@ -61,4 +56,19 @@ public interface UserMapper {
 
     })
     User toEntity(UserDto userDto);
+
+    @Mappings({
+            @Mapping(source = "password", target = "currentPassword")
+    })
+    NewPassword toNewPassword(User user);
+
+    @Mappings({
+            @Mapping(source = "firstName", target = "firstName"),
+            @Mapping(source = "lastName", target = "lastName"),
+            @Mapping(source = "phone", target = "phone")
+
+    })
+    User fromUpdatedUserDtoToUser(UpdateUserDto dto, @MappingTarget User user);
+
+    UpdateUserDto toUpdateUserDto(User user);
 }

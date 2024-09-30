@@ -1,5 +1,6 @@
 package ru.skypro.homework.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -9,13 +10,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import ru.skypro.homework.dto.NewPassword;
 import ru.skypro.homework.dto.UpdateUserDto;
+import ru.skypro.homework.dto.UserDto;
 import ru.skypro.homework.model.User;
-import io.swagger.v3.oas.annotations.Operation;
-
-import java.util.Map;
+import ru.skypro.homework.service.UserService;
 
 /**
  * REST-контроллер для управления пользователями.
@@ -28,11 +30,12 @@ import java.util.Map;
 @CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/users")
 public class UserController {
+    private final UserService userService;
 
     /**
      * Обновляет пароль авторизованного пользователя.
      *
-     * @param newPassword карта с новыми значениями пароля, где ключ – это старый пароль и новый пароль
+     * @param dto карта с новыми значениями пароля, где ключ – это старый пароль и новый пароль
      * @return сообщение о статусе обновления пароля
      */
     @Operation(
@@ -50,10 +53,15 @@ public class UserController {
                     content = @Content)
     })
     @PostMapping("/set_password")
-    public ResponseEntity<String> setPassword(@RequestBody Map<String, String> newPassword) {
+    public ResponseEntity<String> setPassword(@RequestBody NewPassword dto) {
+
         log.info("Обновление пароля для пользователя");
-        // TODO: Логика в методе класса сервиса для обновления пароля
-        return ResponseEntity.ok("Password updated successfully.");
+        if (userService.changePassword(dto) == null) {
+
+            return ResponseEntity.ok("Password updated successfully.");
+        } else {
+            return ResponseEntity.ok("Password is not updated");
+        }
     }
 
     /**
@@ -73,10 +81,9 @@ public class UserController {
                     content = @Content)
     })
     @GetMapping("/me")
-    public ResponseEntity<User> getUser() {
+    public ResponseEntity<UserDto> getUser() {
         log.info("Получение информации об авторизованном пользователе");
-        // TODO: Логика в методе класса сервиса для получения информации о пользователе
-        return ResponseEntity.ok(new User());
+        return ResponseEntity.ok(userService.getAuthorizedUser());
     }
 
     /**
@@ -101,8 +108,7 @@ public class UserController {
     @PatchMapping("/me")
     public ResponseEntity<UpdateUserDto> updateUser(@RequestBody UpdateUserDto updateUser) {
         log.info("Обновление информации об авторизованном пользователе");
-        // TODO: Логика в методе класса сервиса для обновления информации о пользователе
-        return ResponseEntity.ok(updateUser);
+        return ResponseEntity.ok(userService.updateUserData(updateUser));
     }
 
     /**

@@ -11,7 +11,6 @@ import ru.skypro.homework.model.Comment;
 public interface CommentMapper {
 
 
-
     Comment fromCreateOrUpdateCommentDto(CreateOrUpdateCommentDto dto);
     CreateOrUpdateCommentDto toCreateOrUpdateCommentDto(Comment comment);
     @Mappings({
@@ -27,7 +26,7 @@ public interface CommentMapper {
 
     @Mappings({
             @Mapping(source = "user.id",target = "author"),
-            @Mapping(source = "user.imageUser",target = "authorImage",ignore =true),
+            @Mapping(source = "user.imageUser",target = "authorImage",ignore = true),
             @Mapping(source = "user.firstName",target = "authorFirstName"),
             @Mapping(source = "createdAt",target = "createdAt"),
             @Mapping(source = "id",target = "pk"),
