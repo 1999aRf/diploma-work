@@ -1,8 +1,10 @@
 package ru.skypro.homework.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -12,13 +14,18 @@ import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.filter.DelegatingFilterProxy;
 import ru.skypro.homework.dto.Role;
+import ru.skypro.homework.service.impl.UserDetailsServiceImpl;
 
 import javax.sql.DataSource;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
+@EnableWebSecurity
 @Configuration
 public class WebSecurityConfig {
+
+    @Autowired
+    public UserDetailsServiceImpl userDetailsService;
 
     private static final String[] AUTH_WHITELIST = {
             "/swagger-resources/**",
@@ -41,13 +48,13 @@ public class WebSecurityConfig {
 //        return new InMemoryUserDetailsManager(user);
 //    }
 
-    @Bean
+    /*@Bean
     public JdbcUserDetailsManager userDetailsService(DataSource dataSource) {
         JdbcUserDetailsManager userDetailsManager = new JdbcUserDetailsManager(dataSource);
         userDetailsManager.setUsersByUsernameQuery("SELECT username, password, enabled FROM users WHERE username=?");
         userDetailsManager.setAuthoritiesByUsernameQuery("SELECT username, authority FROM authorities WHERE username=?");
         return userDetailsManager;
-    }
+    }*/
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
