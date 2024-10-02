@@ -97,7 +97,7 @@ public class UserService {
             log.info("Пользователь не авторизован", UserNotAuthenticatedException.class);
             throw new UserNotAuthenticatedException("Пользователь не авторизован");
         }
-        return (User) authentication.getPrincipal();
+        return userRepository.findByEmail(authentication.getName()).orElseThrow(UserNotFoundException::new);
     }
 
 
