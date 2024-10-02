@@ -21,48 +21,22 @@ import java.util.Collections;
 import java.util.List;
 
 @Service
-@AllArgsConstructor
 @RequiredArgsConstructor
-public class UserDetailsServiceImpl implements UserDetailsManager {
+public class UserDetailsServiceImpl implements UserDetailsService {
 
-    private UserRepository userRepository;
-    private UserMapper mapper;
+    private final UserRepository repository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findByEmail(username)
+        return repository.findByEmail(username)
                 .map(user -> new User(user.getEmail(),
                         user.getPassword(),
-                        getAuthorities(user.getRole())))
-                .orElseThrow(() -> new UsernameNotFoundException(String.format("%s - not found", username)));
+                        getAuthorities(user.getRole()))
+                ).orElseThrow(() -> new UsernameNotFoundException(String.format("%s - not found", username)));
     }
 
     public List<GrantedAuthority> getAuthorities(Role role) {
-        return Collections.singletonList(new SimpleGrantedAuthority("Role_" + role.name()));
+        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
 
-    @Override
-    public void createUser(UserDetails user) {
-        userRepository.save(mapper.userDetailsToUser(user));
-    }
-
-    @Override
-    public void updateUser(UserDetails user) {
-
-    }
-
-    @Override
-    public void deleteUser(String username) {
-
-    }
-
-    @Override
-    public void changePassword(String oldPassword, String newPassword) {
-
-    }
-
-    @Override
-    public boolean userExists(String username) {
-        return userRepository.findByEmail(username).isPresent();
-    }
 }

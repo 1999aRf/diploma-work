@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import ru.skypro.homework.dto.NewPassword;
 import ru.skypro.homework.dto.UpdateUserDto;
 import ru.skypro.homework.dto.UserDto;
-import ru.skypro.homework.exceptions.InvalidCurrentPassword;
+import ru.skypro.homework.exceptions.InvalidPassword;
 import ru.skypro.homework.exceptions.UserNotAuthenticatedException;
 import ru.skypro.homework.exceptions.UserNotFoundException;
 import ru.skypro.homework.mapper.UserMapper;
@@ -44,7 +44,7 @@ public class UserService {
             user.setPassword(dto.getNewPassword());
         } else {
             log.info("Введен неправильный пароль");
-            throw new InvalidCurrentPassword("Введен неправильный пароль");
+            throw new InvalidPassword("Введен неправильный пароль");
         }
         log.info("Новый пароль успешно сохранен");
         userRepository.save(user);

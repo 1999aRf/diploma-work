@@ -1,22 +1,24 @@
 package ru.skypro.homework.service.impl;
 
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Service;
 import ru.skypro.homework.dto.Register;
+import ru.skypro.homework.exceptions.InvalidPassword;
+import ru.skypro.homework.exceptions.UserNotFoundException;
 import ru.skypro.homework.mapper.UserMapper;
 import ru.skypro.homework.model.User;
 import ru.skypro.homework.repositories.UserRepository;
 import ru.skypro.homework.service.AuthService;
-
+@Slf4j
 @Service
 @AllArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
-    private final UserDetailsManager manager;
+    private final UserDetailsService manager;
     private final PasswordEncoder encoder;
     private final UserMapper mapper;
     private final UserRepository repository;
@@ -25,28 +27,20 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public boolean login(String userName, String password) {
-        if (!manager.userExists(userName)) {
-            return false;
-        }
+        log.info("Запущен метод login() сервиса {}",this.getClass());
         UserDetails userDetails = manager.loadUserByUsername(userName);
-        return encoder.matches(password, userDetails.getPassword());
+        if (!encoder.matches(password, userDetails.getPassword())) {
+            throw new InvalidPassword("Неверный пароль");
+        }
+        return true;
     }
 
     @Override
     public boolean register(Register register) {
-        if (manager.userExists(register.getUsername())) {
-            return false;
-        }
-        /*manager.createUser(
-                User.builder()
-                        .passwordEncoder(this.encoder::encode)
-                        .password(register.getPassword())
-                        .username(register.getUsername())
-                        .roles(register.getRole().name())
-                        .build());*/
-        User user = mapper.fromRegisterDto(register);
-        user.setPassword(encoder.encode(register.getPassword()));
-        repository.save(user);
+        log.info("Запущен метод register() сервиса {}", this.getClass());
+        User fromDto = mapper.fromRegisterDto(register);
+        fromDto.setPassword(encoder.encode(fromDto.getPassword()));
+        repository.save(fromDto);
         return true;
     }
 

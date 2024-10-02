@@ -68,8 +68,6 @@ public class WebSecurityConfig {
                                         .mvcMatchers("/ads/**", "/users/**")
                                         .authenticated()
                                         .mvcMatchers("/admin/**").hasRole("ADMIN"))
-                .cors()
-                .and()
                 .httpBasic(withDefaults());
         return http.build();
     }
