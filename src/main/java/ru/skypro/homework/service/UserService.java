@@ -41,7 +41,7 @@ public class UserService {
         User authotizedUser = getCurrentUser();
         User user = userRepository.findByEmail(authotizedUser.getEmail()).orElseThrow(UserNotFoundException::new);
         if (encoder.matches(dto.getCurrentPassword(), user.getPassword())) {
-            user.setPassword(dto.getNewPassword());
+            user.setPassword(encoder.encode(dto.getNewPassword()));
         } else {
             log.info("Введен неправильный пароль");
             throw new InvalidPassword("Введен неправильный пароль");
