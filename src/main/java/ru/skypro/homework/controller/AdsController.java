@@ -20,6 +20,8 @@ import ru.skypro.homework.dto.ExtendedAd;
 import ru.skypro.homework.dto.AdsDto;
 import ru.skypro.homework.service.AdsService;
 
+import javax.print.attribute.standard.Media;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -67,13 +69,14 @@ public class AdsController {
             @ApiResponse(responseCode = "401", description = "Unauthorized",
                     content = @Content)
     })
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<AdDto> addAd(
-            @RequestParam("image") MultipartFile image,
-            @RequestParam("properties") CreateOrUpdateAdDto adProperties) {
+            @RequestPart("image") MultipartFile image,
+            @RequestPart("properties") CreateOrUpdateAdDto adProperties,
+            Authentication authentication) throws IOException {
 
-        return ResponseEntity.status(201).body(adsService.createAd(adProperties));
+        return ResponseEntity.status(201).body(adsService.createAd(adProperties,image,authentication));
     }
 
     /**

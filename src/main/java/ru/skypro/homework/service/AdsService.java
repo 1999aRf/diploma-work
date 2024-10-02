@@ -3,28 +3,46 @@ package ru.skypro.homework.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.mapstruct.factory.Mappers;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.AdDto;
 import ru.skypro.homework.dto.CreateOrUpdateAdDto;
 import ru.skypro.homework.dto.ExtendedAd;
+import ru.skypro.homework.exceptions.UserNotAuthenticatedException;
+import ru.skypro.homework.exceptions.UserNotFoundException;
 import ru.skypro.homework.mapper.AdMapper;
 import ru.skypro.homework.model.Ad;
+import ru.skypro.homework.model.ImageAd;
 import ru.skypro.homework.model.User;
 import ru.skypro.homework.repositories.AdRepository;
+import ru.skypro.homework.repositories.ImageAdRepository;
+import ru.skypro.homework.repositories.UserRepository;
 
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
+
+import static java.nio.file.StandardOpenOption.CREATE_NEW;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class AdsService {
 
     private final AdRepository adRepository;
+    private final UserRepository userRepository;
+    private final ImageAdRepository imageAdRepository;
     private final AdMapper adMapper = Mappers.getMapper(AdMapper.class);
+
+    @Value("${path.to.imageAd.folder}")
+    private String filePathDir;
 
 
     public List<AdDto> getAllAds() {
@@ -45,9 +63,36 @@ public class AdsService {
         return adMapper.toExtendedAd(ad);
     }
 
-    public AdDto createAd(CreateOrUpdateAdDto adDto) {
+    public AdDto createAd(CreateOrUpdateAdDto adDto, MultipartFile file,Authentication authentication) throws IOException {
+        if (!authentication.isAuthenticated()) {
+            throw new UserNotAuthenticatedException("Для добавления объявления необходима аутентификация");
+        }
+        log.info("Перед маппером");
         Ad ad = adMapper.fromCreateOrUpdateDto(adDto);
+        ad.setUser(getCurrentUser());
+        log.info("Сработал маппер");
+
+
+        Path filePath = Path.of(filePathDir, ad.getTitle() + "." + getExtensions(file.getOriginalFilename()));
+        Files.createDirectories(filePath.getParent());
+        Files.deleteIfExists(filePath);
+        try (
+                InputStream is = file.getInputStream();
+                OutputStream os = Files.newOutputStream(filePath, CREATE_NEW);
+                BufferedInputStream bis = new BufferedInputStream(is,1024);
+                BufferedOutputStream bos = new BufferedOutputStream(os,1024);
+        ) {
+            bis.transferTo(bos);  // запуск процесса передачи данных
+        }
+        ImageAd image = new ImageAd();
+        image.setAd(ad);
+        image.setFilePath(filePath.toString());
+        image.setMediaType(file.getContentType());
+        image.setDataForm(file.getBytes());
+        imageAdRepository.save(image);
+        log.info("Картинка сохранена в бд");
         ad.setUser(getCurrentUser()); // Устанавливаем текущего пользователя как автора
+        ad.setImageAd(image);
         adRepository.save(ad);
         return adMapper.toAdDto(ad);
     }
@@ -80,7 +125,7 @@ public class AdsService {
 
     private User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return (User) authentication.getPrincipal();
+        return userRepository.findByEmail(authentication.getName()).orElseThrow(UserNotFoundException::new);
     }
 
     public boolean isAdBelongsThisUser(String nameOfAuthenticatedUser, Long id) {
@@ -88,5 +133,9 @@ public class AdsService {
 
         Ad foundAd = adRepository.findById(id).orElseThrow(RuntimeException::new);
         return foundAd.getUser().getEmail().equals(nameOfAuthenticatedUser);
+    }
+
+    private String getExtensions(String fileName) {
+        return fileName.substring(fileName.lastIndexOf("." )+1);
     }
 }

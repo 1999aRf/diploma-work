@@ -38,6 +38,4 @@ public class ImageUser {
     @JsonIgnore
     private User user;
 
-    @OneToOne
-    private Ad ad;
 }

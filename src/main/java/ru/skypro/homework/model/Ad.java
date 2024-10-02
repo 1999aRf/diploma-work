@@ -34,7 +34,7 @@ public class Ad {
 
     @OneToOne(mappedBy = "ad")
     @JsonIgnore
-    private ImageUser imageAd;
+    private ImageAd imageAd;
 
     @ManyToOne
     @JoinColumn(name = "id_user", nullable = false)
