@@ -56,7 +56,7 @@ public class AdsController {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = AdsDto.class)))
     })
-    @GetMapping
+    @GetMapping("/ads")
     public ResponseEntity<AdsDto> getAllAds() {
         // TODO: Дополнить логику получения всех объявлений в сервисе получения всех объявлений
         return ResponseEntity.ok(adsService.getAllAds());
@@ -77,7 +77,7 @@ public class AdsController {
             @ApiResponse(responseCode = "401", description = "Unauthorized",
                     content = @Content)
     })
-    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/ads", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<AdDto> addAd(
             @RequestPart("image") MultipartFile image,
@@ -103,7 +103,7 @@ public class AdsController {
             @ApiResponse(responseCode = "404", description = "Not Found",
                     content = @Content)
     })
-    @GetMapping("/{id}")
+    @GetMapping("/ads/{id}")
     @PreAuthorize("hasRole('USER') and " + // Разрешен вызов эндпоинта авторизованному пользователю,
             "@adsService.isAdBelongsThisUser(authentication.principal.username,#id) or" +  // если это объявление пренадлежит ему
             "hasRole('ADMIN')") // Разрешен вызов эндпоинта Админу
@@ -134,7 +134,7 @@ public class AdsController {
             @ApiResponse(responseCode = "404", description = "Not Found",
                     content = @Content)
     })
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/ads/{id}")
     @PreAuthorize("hasRole('USER') and " + // Разрешен вызов эндпоинта авторизованному пользователю,
             "@adsService.isAdBelongsThisUser(authentication.principal.username,#id) or" +  // если это объявление пренадлежит ему
             "hasRole('ADMIN')") // Разрешен вызов эндпоинта Админу
@@ -162,7 +162,7 @@ public class AdsController {
             @ApiResponse(responseCode = "404", description = "Not Found",
                     content = @Content)
     })
-    @PatchMapping("/{id}")
+    @PatchMapping("/ads/{id}")
     @PreAuthorize("hasRole('USER') and " + // Разрешен вызов эндпоинта авторизованному пользователю,
             "@adsService.isAdBelongsThisUser(authentication.principal.username,#id) or" +  // если это объявление пренадлежит ему
             "hasRole('ADMIN')") // Разрешен вызов эндпоинта Админу
@@ -186,7 +186,7 @@ public class AdsController {
             @ApiResponse(responseCode = "401", description = "Unauthorized",
                     content = @Content)
     })
-    @GetMapping("/me")
+    @GetMapping("/ads/me")
     @PreAuthorize("hasRole('USER') and " + // Разрешен вызов эндпоинта авторизованному пользователю,
             "@adsService.isAdBelongsThisUser(authentication.principal.username,#id) or")
     // если это объявление пренадлежит ему
@@ -212,7 +212,7 @@ public class AdsController {
             @ApiResponse(responseCode = "404", description = "Not Found",
                     content = @Content)
     })
-    @PatchMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PatchMapping(value = "/ads/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('USER') and " + // Разрешен вызов эндпоинта авторизованному пользователю,
             "@adsService.isAdBelongsThisUser(authentication.principal.username,#id)")
     // если это объявление пренадлежит ему
@@ -224,13 +224,9 @@ public class AdsController {
     }
 
     @GetMapping(value = "/{filePath}")
-    public ResponseEntity<byte[]> downloadImageAd(@RequestParam String filePath, HttpServletResponse response) throws IOException {
+    public byte[] downloadImageAd(@RequestParam String filePath, HttpServletResponse response) throws IOException {
+        return adsService.downloadImage(filePath,response);
 
-        Path path = Path.of(filePath);
-        try(InputStream is = Files.newInputStream(path);
-            OutputStream os = response.getOutputStream();) {
-            is.transferTo(os);
-        }
-        return ResponseEntity.status(HttpStatus.OK).body(imageAd.getData());
+
     }
 }

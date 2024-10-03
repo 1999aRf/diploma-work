@@ -14,6 +14,7 @@ import ru.skypro.homework.exceptions.InvalidPassword;
 import ru.skypro.homework.exceptions.UserNotAuthenticatedException;
 import ru.skypro.homework.exceptions.UserNotFoundException;
 import ru.skypro.homework.mapper.UserMapper;
+import ru.skypro.homework.model.ImageAd;
 import ru.skypro.homework.model.User;
 import ru.skypro.homework.repositories.UserRepository;
 

@@ -23,6 +23,7 @@ import ru.skypro.homework.repositories.AdRepository;
 import ru.skypro.homework.repositories.ImageAdRepository;
 import ru.skypro.homework.repositories.UserRepository;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -76,7 +77,7 @@ public class AdsService {
         log.info("Сработал маппер");
 
 
-        Path filePath = Path.of(filePathDir,"/ads/" + ad.getTitle() + "." + getExtensions(file.getOriginalFilename()));
+        Path filePath = Path.of(filePathDir,ad.getTitle() + "." + getExtensions(file.getOriginalFilename()));
         Files.createDirectories(filePath.getParent());
         Files.deleteIfExists(filePath);
         try (
@@ -92,6 +93,7 @@ public class AdsService {
         image.setFilePath(filePath.toString());
         image.setMediaType(file.getContentType());
         image.setDataForm(file.getBytes());
+        image.setFileSize(file.getSize());
         imageAdRepository.save(image);
         log.info("Картинка сохранена в бд");
         ad.setUser(getCurrentUser()); // Устанавливаем текущего пользователя как автора
@@ -138,7 +140,23 @@ public class AdsService {
         return foundAd.getUser().getEmail().equals(nameOfAuthenticatedUser);
     }
 
+    public byte[] downloadImage(String filePath, HttpServletResponse response) throws IOException {
+        ImageAd imageAd = imageAdRepository.getImageAdByFilePath(filePath)
+                .orElseThrow(() -> new NoSuchElementException("Нет картинки по заданному пути"));
+        Path path = Path.of(filePath);
+        try(InputStream is = Files.newInputStream(path);
+            OutputStream os = response.getOutputStream();) {
+            response.setStatus(200);
+            response.setContentType(imageAd.getMediaType());
+            response.setContentLength((int) imageAd.getFileSize());
+            is.transferTo(os);
+            return is.readAllBytes();
+        }
+    }
+
     private String getExtensions(String fileName) {
         return fileName.substring(fileName.lastIndexOf("." )+1);
     }
+
+
 }

@@ -4,6 +4,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import ru.skypro.homework.model.ImageAd;
 
+import java.util.Optional;
+
 @Repository
 public interface ImageAdRepository extends JpaRepository<ImageAd, Long> {
+    Optional<ImageAd> getImageAdByFilePath(String filePath);
 }

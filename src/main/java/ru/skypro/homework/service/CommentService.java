@@ -12,13 +12,16 @@ import ru.skypro.homework.dto.CreateOrUpdateAdDto;
 import ru.skypro.homework.dto.CreateOrUpdateCommentDto;
 import ru.skypro.homework.exceptions.AdNotFoundException;
 import ru.skypro.homework.exceptions.CommentNotFoundException;
+import ru.skypro.homework.exceptions.UserNotFoundException;
 import ru.skypro.homework.mapper.CommentMapper;
 import ru.skypro.homework.model.Ad;
 import ru.skypro.homework.model.Comment;
 import ru.skypro.homework.model.User;
 import ru.skypro.homework.repositories.AdRepository;
 import ru.skypro.homework.repositories.CommentRepository;
+import ru.skypro.homework.repositories.UserRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -29,6 +32,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final AdRepository adRepository;
     private final CommentMapper commentMapper;
+    private final UserRepository userRepository;
 
 
     public List<CommentDto> getAllComments() {
@@ -49,6 +53,7 @@ public class CommentService {
         Comment comment = commentMapper.fromCreateOrUpdateCommentDto(commentDto);
         comment.setUser(getCurrentUser()); // Устанавливаем текущего пользователя как автора
         comment.setAd(ad);
+        comment.setCreatedAt(LocalDateTime.now());
         commentRepository.save(comment);
         return commentMapper.toCommentDto(comment);
     }
@@ -90,7 +95,7 @@ public class CommentService {
 
     private User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return (User) authentication.getPrincipal();
+        return userRepository.findByEmail(authentication.getName()).orElseThrow(UserNotFoundException::new);
     }
     public boolean isCommentBelongsThisUser(String nameOfAuthenticatedUser, Long adId,Long commentId) {
         log.info("Проверка на принадлежность объявления текущему аутентифицированному пользователю");
