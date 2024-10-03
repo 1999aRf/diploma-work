@@ -8,6 +8,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,10 +20,16 @@ import ru.skypro.homework.dto.AdDto;
 import ru.skypro.homework.dto.CreateOrUpdateAdDto;
 import ru.skypro.homework.dto.ExtendedAd;
 import ru.skypro.homework.dto.AdsDto;
+import ru.skypro.homework.model.ImageAd;
 import ru.skypro.homework.service.AdsService;
 
 import javax.print.attribute.standard.Media;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 /**
@@ -49,7 +57,7 @@ public class AdsController {
                             schema = @Schema(implementation = AdsDto.class)))
     })
     @GetMapping
-    public ResponseEntity<List<AdDto>> getAllAds() {
+    public ResponseEntity<AdsDto> getAllAds() {
         // TODO: Дополнить логику получения всех объявлений в сервисе получения всех объявлений
         return ResponseEntity.ok(adsService.getAllAds());
     }
@@ -182,7 +190,7 @@ public class AdsController {
     @PreAuthorize("hasRole('USER') and " + // Разрешен вызов эндпоинта авторизованному пользователю,
             "@adsService.isAdBelongsThisUser(authentication.principal.username,#id) or")
     // если это объявление пренадлежит ему
-    public ResponseEntity<List<AdDto>> getMyAds() {
+    public ResponseEntity<AdsDto> getMyAds() {
         return ResponseEntity.ok(adsService.getMyAds());
     }
 
@@ -206,12 +214,23 @@ public class AdsController {
     })
     @PatchMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('USER') and " + // Разрешен вызов эндпоинта авторизованному пользователю,
-            "@adsService.isAdBelongsThisUser(authentication.principal.username,#id) or")
+            "@adsService.isAdBelongsThisUser(authentication.principal.username,#id)")
     // если это объявление пренадлежит ему
     public ResponseEntity<String> updateImage(
             @PathVariable("id") int id,
             @RequestParam("image") MultipartFile image) {
         // TODO: Дополнить логику обновления картинки объявления по id объявления
         return ResponseEntity.ok("Image updated successfully.");
+    }
+
+    @GetMapping(value = "/{filePath}")
+    public ResponseEntity<byte[]> downloadImageAd(@RequestParam String filePath, HttpServletResponse response) throws IOException {
+
+        Path path = Path.of(filePath);
+        try(InputStream is = Files.newInputStream(path);
+            OutputStream os = response.getOutputStream();) {
+            is.transferTo(os);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(imageAd.getData());
     }
 }

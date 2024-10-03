@@ -10,6 +10,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.AdDto;
+import ru.skypro.homework.dto.AdsDto;
 import ru.skypro.homework.dto.CreateOrUpdateAdDto;
 import ru.skypro.homework.dto.ExtendedAd;
 import ru.skypro.homework.exceptions.UserNotAuthenticatedException;
@@ -45,16 +46,18 @@ public class AdsService {
     private String filePathDir;
 
 
-    public List<AdDto> getAllAds() {
-        return adRepository.findAll().stream()
+    public AdsDto getAllAds() {
+        List<AdDto> collect = adRepository.findAll().stream()
                 .map(adMapper::toAdDto)
                 .collect(Collectors.toList());
+        return new AdsDto(collect);
     }
-  public List<AdDto> getMyAds() {
-        return adRepository.findAll().stream()
-                .filter(e -> e.getUser().equals(getCurrentUser()))
-                .map(adMapper::toAdDto)
-                .collect(Collectors.toList());
+  public AdsDto getMyAds() {
+      List<AdDto> collect = adRepository.findAll().stream()
+              .filter(e -> e.getUser().equals(getCurrentUser()))
+              .map(adMapper::toAdDto)
+              .collect(Collectors.toList());
+      return new AdsDto(collect);
     }
 
     public ExtendedAd getAdById(Long id) {
@@ -73,7 +76,7 @@ public class AdsService {
         log.info("Сработал маппер");
 
 
-        Path filePath = Path.of(filePathDir, ad.getTitle() + "." + getExtensions(file.getOriginalFilename()));
+        Path filePath = Path.of(filePathDir,"/ads/" + ad.getTitle() + "." + getExtensions(file.getOriginalFilename()));
         Files.createDirectories(filePath.getParent());
         Files.deleteIfExists(filePath);
         try (
