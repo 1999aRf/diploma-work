@@ -102,6 +102,10 @@ public class AdsService {
         return adMapper.toAdDto(ad);
     }
 
+    private String getExtensions(String fileName) {
+        return fileName.substring(fileName.lastIndexOf(".") + 1);
+    }
+
     public AdDto updateAd(Long id, CreateOrUpdateAdDto adDto) {
         Ad ad = adRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Ad not found"));
@@ -140,7 +144,7 @@ public class AdsService {
         return foundAd.getUser().getEmail().equals(nameOfAuthenticatedUser);
     }
 
-    public byte[] downloadImage(String filePath, HttpServletResponse response) throws IOException {
+    public void downloadImage(String filePath, HttpServletResponse response) throws IOException {
         ImageAd imageAd = imageAdRepository.getImageAdByFilePath(filePath)
                 .orElseThrow(() -> new NoSuchElementException("Нет картинки по заданному пути"));
         Path path = Path.of(filePath);
@@ -150,13 +154,10 @@ public class AdsService {
             response.setContentType(imageAd.getMediaType());
             response.setContentLength((int) imageAd.getFileSize());
             is.transferTo(os);
-            return is.readAllBytes();
         }
     }
 
-    private String getExtensions(String fileName) {
-        return fileName.substring(fileName.lastIndexOf("." )+1);
-    }
+
 
 
 }
