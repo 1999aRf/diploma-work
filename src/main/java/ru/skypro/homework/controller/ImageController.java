@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ru.skypro.homework.service.ImageService;
@@ -18,7 +19,7 @@ import java.io.IOException;
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequiredArgsConstructor
-@PreAuthorize("permitAll()")
+// @PreAuthorize("permitAll()")
 @RequestMapping("/images")
 public class ImageController {
 
@@ -45,11 +46,11 @@ public class ImageController {
             }
     )
     @GetMapping("/{filePath}")
-    public void getAdImage(
+    public ResponseEntity<byte[]> getAdImage(
             @Parameter(name = "id", description = "Ad identifier") @PathVariable(name = "filePath") String filePath,
             HttpServletResponse response
     ) throws IOException {
-        imageService.getImageAd(filePath, response);
+        return imageService.getImageAd(filePath, response);
     }
 
 }

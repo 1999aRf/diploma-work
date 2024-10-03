@@ -41,6 +41,7 @@ public class AdsService {
     private final AdRepository adRepository;
     private final UserRepository userRepository;
     private final ImageAdRepository imageAdRepository;
+    private final ImageService imageService;
     private final AdMapper adMapper = Mappers.getMapper(AdMapper.class);
 
     @Value("${path.to.imageAd.folder}")
@@ -76,34 +77,11 @@ public class AdsService {
         ad.setUser(getCurrentUser());
         log.info("Сработал маппер");
 
-
-        Path filePath = Path.of(filePathDir,ad.getTitle() + "." + getExtensions(file.getOriginalFilename()));
-        Files.createDirectories(filePath.getParent());
-        Files.deleteIfExists(filePath);
-        try (
-                InputStream is = file.getInputStream();
-                OutputStream os = Files.newOutputStream(filePath, CREATE_NEW);
-                BufferedInputStream bis = new BufferedInputStream(is,1024);
-                BufferedOutputStream bos = new BufferedOutputStream(os,1024);
-        ) {
-            bis.transferTo(bos);  // запуск процесса передачи данных
-        }
-        ImageAd image = new ImageAd();
-        image.setAd(ad);
-        image.setFilePath(filePath.toString());
-        image.setMediaType(file.getContentType());
-        image.setDataForm(file.getBytes());
-        image.setFileSize(file.getSize());
-        imageAdRepository.save(image);
-        log.info("Картинка сохранена в бд");
+        ImageAd image = imageService.createImage(ad, file);
         ad.setUser(getCurrentUser()); // Устанавливаем текущего пользователя как автора
         ad.setImageAd(image);
         adRepository.save(ad);
         return adMapper.toAdDto(ad);
-    }
-
-    private String getExtensions(String fileName) {
-        return fileName.substring(fileName.lastIndexOf(".") + 1);
     }
 
     public AdDto updateAd(Long id, CreateOrUpdateAdDto adDto) {
@@ -144,20 +122,9 @@ public class AdsService {
         return foundAd.getUser().getEmail().equals(nameOfAuthenticatedUser);
     }
 
-    public void downloadImage(String filePath, HttpServletResponse response) throws IOException {
-        ImageAd imageAd = imageAdRepository.getImageAdByFilePath(filePath)
-                .orElseThrow(() -> new NoSuchElementException("Нет картинки по заданному пути"));
-        Path path = Path.of(filePath);
-        try(InputStream is = Files.newInputStream(path);
-            OutputStream os = response.getOutputStream();) {
-            response.setStatus(200);
-            response.setContentType(imageAd.getMediaType());
-            response.setContentLength((int) imageAd.getFileSize());
-            is.transferTo(os);
-        }
     }
 
 
 
 
-}
+

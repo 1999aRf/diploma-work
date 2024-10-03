@@ -3,6 +3,10 @@ package ru.skypro.homework.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.model.Ad;
@@ -59,17 +63,14 @@ public class ImageService {
         return imageAdRepository.save(image);
     }
 
-    public void getImageAd(String filePath, HttpServletResponse response) throws IOException {
-        ImageAd imageAd = imageAdRepository.getImageAdByFilePath(filePath)
+    public ResponseEntity<byte[]> getImageAd(String filePath, HttpServletResponse response) throws IOException {
+
+        ImageAd imageAd = imageAdRepository.getImageAdByFilePath("\\images\\" + filePath)
                 .orElseThrow(() -> new NoSuchElementException("Нет картинки по заданному пути"));
-        Path path = Path.of(filePath);
-        try (InputStream is = Files.newInputStream(path);
-             OutputStream os = response.getOutputStream();) {
-            response.setStatus(200);
-            response.setContentType(imageAd.getMediaType());
-            response.setContentLength((int) imageAd.getFileSize());
-            is.transferTo(os);
-        }
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType(imageAd.getMediaType()));
+        headers.setContentLength(imageAd.getDataForm().length);
+        return ResponseEntity.status(HttpStatus.OK).headers(headers).body(imageAd.getDataForm());
 
 
     }
