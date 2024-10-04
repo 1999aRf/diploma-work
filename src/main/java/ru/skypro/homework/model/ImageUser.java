@@ -28,7 +28,7 @@ public class ImageUser {
     @Column(name = "media_type", length = 50)
     private String mediaType;
 
-    @Lob
+    //@Lob
     @Column(name = "data_form")
     @JsonIgnore
     private byte[] dataForm;

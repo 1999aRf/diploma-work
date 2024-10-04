@@ -21,7 +21,7 @@ public class Ad {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_ad")
-    private long id;
+    private Integer id;
 
     @Column(name = "text_title", nullable = false)
     private String title;

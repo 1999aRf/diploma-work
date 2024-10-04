@@ -19,7 +19,7 @@ public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_comment")
-    private long id;
+    private Integer id;
 
     @Column(name = "createdAt", nullable = false)
     private LocalDateTime createdAt;

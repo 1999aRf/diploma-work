@@ -7,6 +7,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.NewPassword;
 import ru.skypro.homework.dto.UpdateUserDto;
 import ru.skypro.homework.dto.UserDto;
@@ -18,6 +19,8 @@ import ru.skypro.homework.model.ImageAd;
 import ru.skypro.homework.model.User;
 import ru.skypro.homework.repositories.UserRepository;
 
+import java.io.IOException;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -25,6 +28,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper = Mappers.getMapper(UserMapper.class);
     private final PasswordEncoder encoder;
+    private final ImageService imageService;
 
     /**
      * Метод обновляет пароль текущего, авторизованного пользователя.
@@ -99,6 +103,16 @@ public class UserService {
             throw new UserNotAuthenticatedException("Пользователь не авторизован");
         }
         return userRepository.findByEmail(authentication.getName()).orElseThrow(UserNotFoundException::new);
+    }
+
+    /**
+     *
+     * @param file
+     * @return
+     */
+    public String updateUserImage(MultipartFile file) throws IOException {
+        User authenticatedUser = getCurrentUser();
+        return imageService.updateUserImage(authenticatedUser, file);
     }
 
 

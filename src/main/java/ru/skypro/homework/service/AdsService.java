@@ -98,7 +98,9 @@ public class AdsService {
         return adMapper.toAdDto(ad);
     }
 
+
     public void deleteAd(Long id) {
+        log.info("Вызван метод удаления объявления");
         Ad ad = adRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Ad not found"));
 
@@ -107,7 +109,7 @@ public class AdsService {
             throw new AccessDeniedException("You do not have permission to delete this ad.");
         }
 
-        adRepository.delete(ad);
+        adRepository.deleteById(id);
     }
 
     private User getCurrentUser() {
