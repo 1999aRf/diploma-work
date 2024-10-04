@@ -62,7 +62,7 @@ public class AdsService {
       return new AdsDto(collect);
     }
 
-    public ExtendedAd getAdById(Long id) {
+    public ExtendedAd getAdById(Integer id) {
         Ad ad = adRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Ad not found"));
         return adMapper.toExtendedAd(ad);
@@ -84,7 +84,7 @@ public class AdsService {
         return adMapper.toAdDto(ad);
     }
 
-    public AdDto updateAd(Long id, CreateOrUpdateAdDto adDto) {
+    public AdDto updateAd(Integer id, CreateOrUpdateAdDto adDto) {
         Ad ad = adRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Ad not found"));
 
@@ -98,7 +98,7 @@ public class AdsService {
         return adMapper.toAdDto(ad);
     }
 
-    public void deleteAd(Long id) {
+    public void deleteAd(Integer id) {
         Ad ad = adRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Ad not found"));
 
@@ -107,7 +107,8 @@ public class AdsService {
             throw new AccessDeniedException("You do not have permission to delete this ad.");
         }
 
-        adRepository.delete(ad);
+        adRepository.deleteById(id);
+        log.info("запрос на удаление произведен успешно");
     }
 
     private User getCurrentUser() {
@@ -115,7 +116,7 @@ public class AdsService {
         return userRepository.findByEmail(authentication.getName()).orElseThrow(UserNotFoundException::new);
     }
 
-    public boolean isAdBelongsThisUser(String nameOfAuthenticatedUser, Long id) {
+    public boolean isAdBelongsThisUser(String nameOfAuthenticatedUser, Integer id) {
         log.info("Проверка на принадлежность объявления текущему аутентифицированному пользователю");
 
         Ad foundAd = adRepository.findById(id).orElseThrow(RuntimeException::new);

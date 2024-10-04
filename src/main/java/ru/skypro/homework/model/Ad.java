@@ -21,7 +21,7 @@ public class Ad {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_ad")
-    private long id;
+    private Integer id;
 
     @Column(name = "text_title", nullable = false)
     private String title;
@@ -32,7 +32,7 @@ public class Ad {
     @Column(name = "text_description", nullable = false)
     private String description;
 
-    @OneToOne(mappedBy = "ad")
+    @OneToOne(mappedBy = "ad", cascade = CascadeType.ALL)
     @JsonIgnore
     private ImageAd imageAd;
 
@@ -41,7 +41,7 @@ public class Ad {
     @JsonIgnore
     private User user;
 
-    @OneToMany(mappedBy = "ad")
+    @OneToMany(mappedBy = "ad", cascade = CascadeType.ALL,orphanRemoval = true)
     @JsonIgnore
     private List<Comment> comments;
 }

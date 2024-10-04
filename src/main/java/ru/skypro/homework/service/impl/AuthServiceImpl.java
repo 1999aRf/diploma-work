@@ -9,11 +9,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.skypro.homework.dto.Register;
 import ru.skypro.homework.exceptions.InvalidPassword;
+import ru.skypro.homework.exceptions.UserAlreadyExistsException;
 import ru.skypro.homework.exceptions.UserNotFoundException;
 import ru.skypro.homework.mapper.UserMapper;
 import ru.skypro.homework.model.User;
 import ru.skypro.homework.repositories.UserRepository;
 import ru.skypro.homework.service.AuthService;
+
+import java.net.http.HttpRequest;
+
 @Slf4j
 @Service
 @AllArgsConstructor
@@ -40,6 +44,9 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public boolean register(Register register) {
         log.info("Запущен метод register() сервиса {}", this.getClass());
+        if (manager.loadUserByUsername(register.getUsername()) != null) {
+            throw new UserAlreadyExistsException("Пользователь уже существует");
+        }
         User fromDto = mapper.fromRegisterDto(register);
         fromDto.setPassword(encoder.encode(fromDto.getPassword()));
         repository.save(fromDto);

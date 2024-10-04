@@ -56,7 +56,7 @@ public class CommentsController {
     })
     @GetMapping
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')") // Разрешен вызов эндпоинта Админу и пользователю
-    public ResponseEntity<CommentsDto> getComments(@PathVariable("adId") Long adId) {
+    public ResponseEntity<CommentsDto> getComments(@PathVariable("adId") Integer adId) {
         log.info("Получение комментариев для объявления с id {}", adId);
         // TODO: Логика в классе сервиса для получения комментариев
         return ResponseEntity.ok(commentService.getComments(adId));
@@ -84,7 +84,7 @@ public class CommentsController {
     @PostMapping
     @PreAuthorize("hasRole('USER')") // Разрешен вызов эндпоинта Админу и пользователю
     public ResponseEntity<CommentDto> addComment(
-            @PathVariable("adId") Long adId,
+            @PathVariable("adId") Integer adId,
             @RequestBody CreateOrUpdateCommentDto commentData) {
         log.info("Добавление комментария к объявлению с id {}", id);
         // TODO: Логика в классе сервиса добавления комментария
@@ -108,8 +108,8 @@ public class CommentsController {
             @ApiResponse(responseCode = "404", description = "Not Found", content = @Content)
     })
     @DeleteMapping("/{commentId}")
-    @PreAuthorize("hasRole('USER') and @commentService.isCommentBelongsThisUser(authentication.principal.name,#adId,#commentId)" +
-            " or hasRole('ADMIN')") // Разрешен вызов эндпоинта Админу и пользователю
+    @PreAuthorize("hasRole('ADMIN') and @commentService.isCommentBelongsThisUser(authentication.principal.name,#adId,#commentId)")
+             // Разрешен вызов эндпоинта Админу и пользователю
     public ResponseEntity<Void> deleteComment(
             @PathVariable("adId") int adId,
             @PathVariable("commentId") Long commentId) {

@@ -47,7 +47,7 @@ public class CommentService {
         return commentMapper.toCommentDto(comment);
     }
 
-    public CommentDto createComment(Long adId,CreateOrUpdateCommentDto commentDto) {
+    public CommentDto createComment(Integer adId,CreateOrUpdateCommentDto commentDto) {
         Ad ad = adRepository.findById(adId).orElseThrow(AdNotFoundException::new);
 
         Comment comment = commentMapper.fromCreateOrUpdateCommentDto(commentDto);
@@ -84,7 +84,7 @@ public class CommentService {
         commentRepository.delete(comment);
     }
 
-    public CommentsDto getComments(Long id) {
+    public CommentsDto getComments(Integer id) {
         Ad ad = adRepository.findById(id).orElseThrow(AdNotFoundException::new);
         List<Comment> commentList = commentRepository.findCommentByAd(ad).orElseThrow(CommentNotFoundException::new);
         List<CommentDto> dtoList = commentList.stream()
@@ -97,7 +97,7 @@ public class CommentService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return userRepository.findByEmail(authentication.getName()).orElseThrow(UserNotFoundException::new);
     }
-    public boolean isCommentBelongsThisUser(String nameOfAuthenticatedUser, Long adId,Long commentId) {
+    public boolean isCommentBelongsThisUser(String nameOfAuthenticatedUser, Integer adId,Long commentId) {
         log.info("Проверка на принадлежность объявления текущему аутентифицированному пользователю");
 
         Ad ad = adRepository.findById(adId).orElseThrow(AdNotFoundException::new);

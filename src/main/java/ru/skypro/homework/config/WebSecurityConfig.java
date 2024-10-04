@@ -36,25 +36,6 @@ public class WebSecurityConfig {
             "/register"
     };
 
-//    @Bean
-//    public InMemoryUserDetailsManager userDetailsService(PasswordEncoder passwordEncoder) {
-//        UserDetails user =
-//                User.builder()
-//                        .username("user@gmail.com")
-//                        .password("password")
-//                        .passwordEncoder(passwordEncoder::encode)
-//                        .roles(Role.USER.name())
-//                        .build();
-//        return new InMemoryUserDetailsManager(user);
-//    }
-
-    /*@Bean
-    public JdbcUserDetailsManager userDetailsService(DataSource dataSource) {
-        JdbcUserDetailsManager userDetailsManager = new JdbcUserDetailsManager(dataSource);
-        userDetailsManager.setUsersByUsernameQuery("SELECT username, password, enabled FROM users WHERE username=?");
-        userDetailsManager.setAuthoritiesByUsernameQuery("SELECT username, authority FROM authorities WHERE username=?");
-        return userDetailsManager;
-    }*/
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -65,8 +46,7 @@ public class WebSecurityConfig {
                                 authorization
                                         .mvcMatchers(AUTH_WHITELIST)
                                         .permitAll()
-                                        .mvcMatchers("/ads/**", "/users/**")
-                                        .authenticated())
+                                        .mvcMatchers("/ads/**", "/users/**"))
                 .cors()
                 .and()
                 .httpBasic(withDefaults());
