@@ -88,12 +88,7 @@ public class AdsService {
         Ad ad = adRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Ad not found"));
 
-        // Проверка на авторство
-        if (!ad.getUser().getEmail().equals(getCurrentUser().getEmail())) {
-            throw new AccessDeniedException("You do not have permission to edit this ad.");
-        }
-
-        adMapper.fromCreateOrUpdateDto(adDto);
+        adMapper.updateAdFromDto(adDto, ad);
         adRepository.save(ad);
         return adMapper.toAdDto(ad);
     }
@@ -101,11 +96,6 @@ public class AdsService {
     public void deleteAd(Integer id) {
         Ad ad = adRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Ad not found"));
-
-        // Проверка на авторство
-        if (!ad.getUser().getEmail().equals(getCurrentUser().getEmail())) {
-            throw new AccessDeniedException("You do not have permission to delete this ad.");
-        }
 
         adRepository.deleteById(id);
         log.info("запрос на удаление произведен успешно");
