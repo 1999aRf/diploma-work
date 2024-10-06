@@ -164,9 +164,9 @@ public class AdsController {
                     content = @Content)
     })
     @PatchMapping("/{id}")
-    @PreAuthorize("hasRole('USER') and " + // Разрешен вызов эндпоинта авторизованному пользователю,
-            "@adsService.isAdBelongsThisUser(authentication.principal.username,#id) or" +  // если это объявление пренадлежит ему
-            "hasRole('ADMIN')") // Разрешен вызов эндпоинта Админу
+    @PreAuthorize("hasRole('ADMIN') or " + // Разрешен вызов эндпоинта авторизованному пользователю,
+            "@adsService.isAdBelongsThisUser(authentication.principal.username,#id)"  // если это объявление пренадлежит ему
+            ) // Разрешен вызов эндпоинта Админу
     public ResponseEntity<AdDto> updateAd(
             @PathVariable("id") Integer id,
             @RequestBody CreateOrUpdateAdDto updateData) {

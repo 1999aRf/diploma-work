@@ -63,11 +63,11 @@ public class CommentService {
                 .orElseThrow(() -> new NoSuchElementException("Comment not found"));
 
         // Проверка на авторство
-        if (!comment.getUser().getEmail().equals(getCurrentUser().getEmail())) {
-            throw new AccessDeniedException("You do not have permission to edit this comment.");
-        }
+//        if (!comment.getUser().getEmail().equals(getCurrentUser().getEmail())) {
+//            throw new AccessDeniedException("You do not have permission to edit this comment.");
+//        }
 
-        commentMapper.fromCreateOrUpdateCommentDto(commentDto);
+        commentMapper.updateCommentFromDto(commentDto, comment);
         commentRepository.save(comment);
         return commentMapper.toCommentDto(comment);
     }
@@ -77,9 +77,9 @@ public class CommentService {
                 .orElseThrow(() -> new NoSuchElementException("Comment not found"));
 
         // Проверка на авторство
-        if (!comment.getUser().getEmail().equals(getCurrentUser().getEmail())) {
-            throw new AccessDeniedException("You do not have permission to delete this comment.");
-        }
+//        if (!comment.getUser().getEmail().equals(getCurrentUser().getEmail())) {
+//            throw new AccessDeniedException("You do not have permission to delete this comment.");
+//        }
 
         commentRepository.delete(comment);
     }
