@@ -41,12 +41,8 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    @Transactional
     public boolean register(Register register) {
         log.info("Запущен метод register() сервиса {}", this.getClass());
-        if (manager.loadUserByUsername(register.getUsername()) != null) {
-            throw new UserAlreadyExistsException("Пользователь уже существует");
-        }
         User fromDto = mapper.fromRegisterDto(register);
         fromDto.setPassword(encoder.encode(fromDto.getPassword()));
         repository.save(fromDto);

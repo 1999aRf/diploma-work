@@ -52,5 +52,12 @@ public class ImageController {
     ) throws IOException {
         return imageService.getImageAd(filePath, response);
     }
+    @GetMapping("/users/{filePath}")
+    public ResponseEntity<byte[]> getUserImage(
+            @Parameter(name = "id", description = "Ad identifier") @PathVariable(name = "filePath") String filePath,
+            HttpServletResponse response
+    ) throws IOException {
+        return imageService.getImageUser(filePath, response);
+    }
 
 }

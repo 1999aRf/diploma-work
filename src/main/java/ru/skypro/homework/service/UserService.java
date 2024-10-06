@@ -7,6 +7,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.NewPassword;
 import ru.skypro.homework.dto.UpdateUserDto;
 import ru.skypro.homework.dto.UserDto;
@@ -18,11 +19,14 @@ import ru.skypro.homework.model.ImageAd;
 import ru.skypro.homework.model.User;
 import ru.skypro.homework.repositories.UserRepository;
 
+import java.io.IOException;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final ImageService imageService;
     private final UserMapper userMapper = Mappers.getMapper(UserMapper.class);
     private final PasswordEncoder encoder;
 
@@ -64,7 +68,9 @@ public class UserService {
         log.info("Вызван метод получения авторизованного пользователя");
         User authenticatedUser = getCurrentUser();
         User user = userRepository.findByEmail(authenticatedUser.getEmail()).orElseThrow(UserNotFoundException::new);
-        return userMapper.toUserDto(user);
+        UserDto userDto = userMapper.toUserDto(user);
+
+        return userDto;
     }
 
     /**
@@ -102,4 +108,7 @@ public class UserService {
     }
 
 
+    public void updateUserImage(MultipartFile image) throws IOException {
+        imageService.createImage(getCurrentUser(), image);
+    }
 }
