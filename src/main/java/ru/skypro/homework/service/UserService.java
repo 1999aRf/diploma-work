@@ -15,12 +15,18 @@ import ru.skypro.homework.exceptions.InvalidPassword;
 import ru.skypro.homework.exceptions.UserNotAuthenticatedException;
 import ru.skypro.homework.exceptions.UserNotFoundException;
 import ru.skypro.homework.mapper.UserMapper;
-import ru.skypro.homework.model.ImageAd;
 import ru.skypro.homework.model.User;
 import ru.skypro.homework.repositories.UserRepository;
 
 import java.io.IOException;
 
+/**
+ * Сервис для работы с пользователями, включает в себя обновление пароля, данных пользователя,
+ * а также управление изображениями пользователей.
+ *
+ * Логирование осуществляется с помощью аннотации {@link Slf4j}.
+ * Используются репозитории {@link UserRepository} и сервис {@link ImageService} для работы с изображениями и данными пользователя.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -107,7 +113,14 @@ public class UserService {
         return userRepository.findByEmail(authentication.getName()).orElseThrow(UserNotFoundException::new);
     }
 
-
+    /**
+     * Метод обновляет изображение текущего пользователя.
+     *
+     * @param image объект {@link MultipartFile}, содержащий загруженное изображение.
+     * @throws IOException если произошла ошибка при сохранении изображения.
+     * @throws UserNotAuthenticatedException если пользователь не авторизован.
+     * @throws UserNotFoundException если пользователь с таким email не найден.
+     */
     public void updateUserImage(MultipartFile image) throws IOException {
         imageService.createImage(getCurrentUser(), image);
     }

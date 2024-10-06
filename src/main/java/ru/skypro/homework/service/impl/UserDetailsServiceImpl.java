@@ -1,20 +1,14 @@
 package ru.skypro.homework.service.impl;
 
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Service;
 import ru.skypro.homework.dto.Role;
-import ru.skypro.homework.exceptions.UserNotFoundException;
-import ru.skypro.homework.mapper.UserMapper;
-import ru.skypro.homework.model.UserPrincipal;
 import ru.skypro.homework.repositories.UserRepository;
 
 import java.util.Collections;
