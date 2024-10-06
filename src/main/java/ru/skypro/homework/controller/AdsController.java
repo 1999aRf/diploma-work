@@ -8,15 +8,28 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.AdDto;
 import ru.skypro.homework.dto.CreateOrUpdateAdDto;
 import ru.skypro.homework.dto.ExtendedAd;
 import ru.skypro.homework.dto.AdsDto;
+import ru.skypro.homework.model.ImageAd;
+import ru.skypro.homework.service.AdsService;
 
+import javax.print.attribute.standard.Media;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 /**
@@ -30,6 +43,7 @@ import java.util.List;
 @RequestMapping("/ads")
 @Tag(name = "Обьявления")
 public class AdsController {
+    private final AdsService adsService;
 
     /**
      * Получение всех объявлений.
@@ -42,10 +56,10 @@ public class AdsController {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = AdsDto.class)))
     })
-    @GetMapping
-    public ResponseEntity<List<AdsDto>> getAllAds() {
+    @GetMapping()
+    public ResponseEntity<AdsDto> getAllAds() {
         // TODO: Дополнить логику получения всех объявлений в сервисе получения всех объявлений
-        return ResponseEntity.ok(List.of(new AdsDto()));
+        return ResponseEntity.ok(adsService.getAllAds());
     }
 
     /**
@@ -63,12 +77,14 @@ public class AdsController {
             @ApiResponse(responseCode = "401", description = "Unauthorized",
                     content = @Content)
     })
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping( produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<AdDto> addAd(
-            @RequestParam("image") MultipartFile image,
-            @RequestParam("properties") AdDto adProperties) {
-        // TODO: Дополнить логику добавления объявления в сервисе
-        return ResponseEntity.status(201).body(new AdDto());
+            @RequestPart("image") MultipartFile image,
+            @RequestPart("properties") CreateOrUpdateAdDto adProperties,
+            Authentication authentication) throws IOException {
+
+        return ResponseEntity.status(201).body(adsService.createAd(adProperties,image,authentication));
     }
 
     /**
@@ -88,9 +104,17 @@ public class AdsController {
                     content = @Content)
     })
     @GetMapping("/{id}")
-    public ResponseEntity<ExtendedAd> getAdById(@PathVariable("id") int id) {
-        // TODO: Дополнить логику получения объявления по значению id объявления
-        return ResponseEntity.ok(new ExtendedAd());
+    @PreAuthorize("hasRole('USER') and " + // Разрешен вызов эндпоинта авторизованному пользователю,
+            "@adsService.isAdBelongsThisUser(authentication.principal.username,#id) or" +  // если это объявление пренадлежит ему
+            "hasRole('ADMIN')") // Разрешен вызов эндпоинта Админу
+
+    public ResponseEntity<ExtendedAd> getAdById(@PathVariable("id") Integer id) {
+        ExtendedAd ad = adsService.getAdById(id);
+        if (ad == null) {
+            return ResponseEntity.notFound().build();
+        } else {
+            return ResponseEntity.ok(ad);
+        }
     }
 
     /**
@@ -111,8 +135,12 @@ public class AdsController {
                     content = @Content)
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteAd(@PathVariable("id") int id) {
-        // TODO: Дополнить логику удаления объявления по значению идентификатора
+    @PreAuthorize("hasRole('ADMIN') or " + // Разрешен вызов эндпоинта авторизованному пользователю,
+            "@adsService.isAdBelongsThisUser(authentication.principal.username,#id)" )  // если это объявление пренадлежит ему
+            // Разрешен вызов эндпоинта Админу
+    public ResponseEntity<Void> deleteAd(@PathVariable("id") Integer id) {
+        adsService.deleteAd(id);
+
         return ResponseEntity.noContent().build();
     }
 
@@ -136,11 +164,14 @@ public class AdsController {
                     content = @Content)
     })
     @PatchMapping("/{id}")
-    public ResponseEntity<CreateOrUpdateAdDto> updateAd(
-            @PathVariable("id") int id,
+    @PreAuthorize("hasRole('USER') and " + // Разрешен вызов эндпоинта авторизованному пользователю,
+            "@adsService.isAdBelongsThisUser(authentication.principal.username,#id) or" +  // если это объявление пренадлежит ему
+            "hasRole('ADMIN')") // Разрешен вызов эндпоинта Админу
+    public ResponseEntity<AdDto> updateAd(
+            @PathVariable("id") Integer id,
             @RequestBody CreateOrUpdateAdDto updateData) {
-        // TODO: Дополнить логику обновления объявления по значению id объявления
-        return ResponseEntity.ok(new CreateOrUpdateAdDto());
+        AdDto ad = adsService.updateAd(id, updateData);
+        return ResponseEntity.ok(ad);
     }
 
     /**
@@ -157,34 +188,12 @@ public class AdsController {
                     content = @Content)
     })
     @GetMapping("/me")
+    @PreAuthorize("hasRole('USER') and " + // Разрешен вызов эндпоинта авторизованному пользователю,
+            "@adsService.isAdBelongsThisUser(authentication.principal.username,#id) or")
+    // если это объявление пренадлежит ему
     public ResponseEntity<AdsDto> getMyAds() {
-        // TODO: Дополнить логику получения объявлений авторизованного пользователя
-        return ResponseEntity.ok(new AdsDto());
+        return ResponseEntity.ok(adsService.getMyAds());
     }
 
-    /**
-     * Обновление картинки для объявления по его идентификатору.
-     *
-     * @param id    идентификатор объявления.
-     * @param image новое изображение для объявления.
-     * @return сообщение об успешном обновлении изображения.
-     */
-    @Operation(summary = "Обновление картинки объявления")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK",
-                    content = @Content(mediaType = "application/octet-stream")),
-            @ApiResponse(responseCode = "401", description = "Unauthorized",
-                    content = @Content),
-            @ApiResponse(responseCode = "403", description = "Forbidden",
-                    content = @Content),
-            @ApiResponse(responseCode = "404", description = "Not Found",
-                    content = @Content)
-    })
-    @PatchMapping(value = "/{id}/image",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> updateImage(
-            @PathVariable("id") int id,
-            @RequestParam("image") MultipartFile image) {
-        // TODO: Дополнить логику обновления картинки объявления по id объявления
-        return ResponseEntity.ok("Image updated successfully.");
-    }
+
 }

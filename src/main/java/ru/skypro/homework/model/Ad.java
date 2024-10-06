@@ -1,9 +1,7 @@
 package ru.skypro.homework.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -13,15 +11,17 @@ import java.util.List;
 
 @Entity
 @Table(name = "ads")
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
+@EqualsAndHashCode
 public class Ad {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_ad")
-    private long id;
+    private Integer id;
 
     @Column(name = "text_title", nullable = false)
     private String title;
@@ -32,16 +32,16 @@ public class Ad {
     @Column(name = "text_description", nullable = false)
     private String description;
 
-    @OneToOne(mappedBy = "ad")
+    @OneToOne(mappedBy = "ad", cascade = CascadeType.ALL)
     @JsonIgnore
-    private ImageUser imageAd;
+    private ImageAd imageAd;
 
     @ManyToOne
     @JoinColumn(name = "id_user", nullable = false)
     @JsonIgnore
     private User user;
 
-    @OneToMany(mappedBy = "ad")
+    @OneToMany(mappedBy = "ad", cascade = CascadeType.ALL,orphanRemoval = true)
     @JsonIgnore
     private List<Comment> comments;
 }

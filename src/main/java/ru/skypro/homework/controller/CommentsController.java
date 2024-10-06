@@ -8,14 +8,17 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.skypro.homework.dto.CommentDto;
 import ru.skypro.homework.dto.CommentsDto;
 import ru.skypro.homework.dto.CreateOrUpdateCommentDto;
 import ru.skypro.homework.model.Comment;
+import ru.skypro.homework.service.CommentService;
 
 import java.util.List;
 
@@ -32,6 +35,7 @@ import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 @CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/ads/{adId}/comments")
 public class CommentsController {
+    private final CommentService commentService;
 
     /**
      * Получает список комментариев, связанных с указанным объявлением.
@@ -51,10 +55,11 @@ public class CommentsController {
             @ApiResponse(responseCode = "404", description = "Not Found", content = @Content)
     })
     @GetMapping
-    public ResponseEntity<List<Comment>> getComments(@PathVariable("adId") int adId) {
-        log.info("Получение комментариев для объявления с id {}", id);
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')") // Разрешен вызов эндпоинта Админу и пользователю
+    public ResponseEntity<CommentsDto> getComments(@PathVariable("adId") Integer adId) {
+        log.info("Получение комментариев для объявления с id {}", adId);
         // TODO: Логика в классе сервиса для получения комментариев
-        return ResponseEntity.ok(List.of(new Comment()));
+        return ResponseEntity.ok(commentService.getComments(adId));
     }
 
     /**
@@ -77,12 +82,13 @@ public class CommentsController {
             @ApiResponse(responseCode = "404", description = "Not Found", content = @Content)
     })
     @PostMapping
-    public ResponseEntity<Comment> addComment(
-            @PathVariable("adId") int adId,
+    @PreAuthorize("hasRole('USER')") // Разрешен вызов эндпоинта Админу и пользователю
+    public ResponseEntity<CommentDto> addComment(
+            @PathVariable("adId") Integer adId,
             @RequestBody CreateOrUpdateCommentDto commentData) {
         log.info("Добавление комментария к объявлению с id {}", id);
         // TODO: Логика в классе сервиса добавления комментария
-        return ResponseEntity.ok(new Comment());
+        return ResponseEntity.ok(commentService.createComment(adId,commentData));
     }
 
     /**
@@ -102,11 +108,13 @@ public class CommentsController {
             @ApiResponse(responseCode = "404", description = "Not Found", content = @Content)
     })
     @DeleteMapping("/{commentId}")
+    @PreAuthorize("hasRole('ADMIN') and @commentService.isCommentBelongsThisUser(authentication.principal.name,#adId,#commentId)")
+             // Разрешен вызов эндпоинта Админу и пользователю
     public ResponseEntity<Void> deleteComment(
             @PathVariable("adId") int adId,
-            @PathVariable("commentId") int commentId) {
+            @PathVariable("commentId") Long commentId) {
         log.info("Удаление комментария с id {} для объявления с id {}", commentId, adId);
-        // TODO: Логика в классе сервиса (метода) для удаления комментария
+        commentService.deleteComment(commentId);
         return ResponseEntity.ok().build();
     }
 
@@ -131,12 +139,14 @@ public class CommentsController {
             @ApiResponse(responseCode = "404", description = "Not Found", content = @Content)
     })
     @PatchMapping("/{commentId}")
-    public ResponseEntity<Comment> updateComment(
+    @PreAuthorize("hasRole('USER') and @commentService.isCommentBelongsThisUser(authentication.principal.name,#adId,#commentId)" +
+            " or hasRole('ADMIN')") // Разрешен вызов эндпоинта Админу и пользователю
+    public ResponseEntity<CommentDto> updateComment(
             @PathVariable("adId") int adId,
-            @PathVariable("commentId") int commentId,
+            @PathVariable("commentId") Long commentId,
             @RequestBody CreateOrUpdateCommentDto commentData) {
         log.info("Обновление комментария с id {} для объявления с id {}", commentId, adId);
         // TODO: Логика в классе сервиса для обновления комментария
-        return ResponseEntity.ok(new Comment());
+        return ResponseEntity.ok(commentService.updateComment(commentId,commentData));
     }
 }

@@ -21,7 +21,7 @@ public class User {
     @Column(name = "id_user")
     private int id;
 
-    @Column(name = "email_user", nullable = false)
+    @Column(name = "username", nullable = false)
     private String email;
 
     @Column(name = "first_name", nullable = false)
@@ -44,7 +44,9 @@ public class User {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
     @JsonIgnore
     private List<Comment> comments;
+
+
 }

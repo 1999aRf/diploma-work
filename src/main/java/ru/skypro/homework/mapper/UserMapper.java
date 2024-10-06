@@ -1,15 +1,12 @@
 package ru.skypro.homework.mapper;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Mappings;
-import org.mapstruct.ReportingPolicy;
-import ru.skypro.homework.dto.Login;
-import ru.skypro.homework.dto.Register;
-import ru.skypro.homework.dto.UserDto;
+import org.mapstruct.*;
+import org.springframework.security.core.userdetails.UserDetails;
+import ru.skypro.homework.dto.*;
 import ru.skypro.homework.model.User;
 
-@Mapper
+@Mapper(componentModel = "spring",unmappedTargetPolicy = ReportingPolicy.IGNORE,
+imports = {ru.skypro.homework.dto.Role.class})
 public interface UserMapper {
 
 
@@ -28,14 +25,14 @@ public interface UserMapper {
     User toEntity(Register register);
 
     @Mappings({
-            @Mapping(source = "email", target = "username") ,
+            @Mapping(source = "username", target = "email") ,
             @Mapping(source = "password", target = "password"),
             @Mapping(source = "firstName", target = "firstName"),
             @Mapping(source = "lastName", target = "lastName"),
             @Mapping(source = "phone", target = "phone"),
             @Mapping(source = "role", target = "role"),
     })
-    Register toRegisterDto(User user);
+    User fromRegisterDto(Register register);
 
 
     @Mappings({
@@ -61,4 +58,30 @@ public interface UserMapper {
 
     })
     User toEntity(UserDto userDto);
+
+    @Mappings({
+            @Mapping(source = "password", target = "currentPassword")
+    })
+    NewPassword toNewPassword(User user);
+
+    @Mappings({
+            @Mapping(source = "firstName", target = "firstName"),
+            @Mapping(source = "lastName", target = "lastName"),
+            @Mapping(source = "phone", target = "phone")
+
+    })
+    User fromUpdatedUserDtoToUser(UpdateUserDto dto, @MappingTarget User user);
+
+    @Mappings(value = {
+            @Mapping(target = "id", constant = "0"),
+            @Mapping(target = "email", expression = "java(userDetails.getUsername())"),
+            @Mapping(target = "firstName", constant = "firstName"),
+            @Mapping(target = "lastName", constant = "lastName"),
+            @Mapping(target = "phone", constant = "+7 (111) 111-11-11"),
+            @Mapping(target = "role", expression = "java(Role.USER)"),
+            @Mapping(target = "imageUser", ignore = true)
+    })
+    User userDetailsToUser(UserDetails userDetails);
+
+    UpdateUserDto toUpdateUserDto(User user);
 }
