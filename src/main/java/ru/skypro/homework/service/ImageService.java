@@ -48,7 +48,7 @@ public class ImageService {
         }
         ImageAd image = new ImageAd();
         image.setAd(ad);
-        image.setFilePath(filePath.toString());
+        image.setFilePath(filePath.toString().replace("\\","/"));
         image.setMediaType(file.getContentType());
         image.setDataForm(file.getBytes());
         image.setFileSize(file.getSize());
@@ -68,7 +68,7 @@ public class ImageService {
 
     public ResponseEntity<byte[]> getImageAd(String filePath, HttpServletResponse response) throws IOException {
 
-        ImageAd imageAd = imageAdRepository.getImageAdByFilePath("\\images\\" + filePath)
+        ImageAd imageAd = imageAdRepository.getImageAdByFilePath("/images/" + filePath)
                 .orElseThrow(() -> new NoSuchElementException("Нет картинки по заданному пути"));
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.parseMediaType(imageAd.getMediaType()));
