@@ -11,7 +11,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.model.Ad;
 import ru.skypro.homework.model.ImageAd;
+import ru.skypro.homework.model.ImageUser;
 import ru.skypro.homework.repositories.ImageAdRepository;
+import ru.skypro.homework.repositories.ImageUserRepository;
 
 import javax.servlet.http.HttpServletResponse;
 import java.awt.*;
@@ -28,6 +30,7 @@ import static java.nio.file.StandardOpenOption.CREATE_NEW;
 public class ImageService {
 
     private final ImageAdRepository imageAdRepository;
+    private final ImageUserRepository imageUserRepository;
     @Value("${path.to.imageAd.folder}")
     private String filePathDir;
 
@@ -71,7 +74,14 @@ public class ImageService {
         headers.setContentType(MediaType.parseMediaType(imageAd.getMediaType()));
         headers.setContentLength(imageAd.getDataForm().length);
         return ResponseEntity.status(HttpStatus.OK).headers(headers).body(imageAd.getDataForm());
+    }
+    public ResponseEntity<byte[]> getImageUser(String filePath, HttpServletResponse response) throws IOException {
 
-
+        ImageUser image = imageUserRepository.getImageAdByFilePath("\\images\\" + filePath)
+                .orElseThrow(() -> new NoSuchElementException("Нет картинки по заданному пути"));
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType(image.getMediaType()));
+        headers.setContentLength(image.getDataForm().length);
+        return ResponseEntity.status(HttpStatus.OK).headers(headers).body(image.getDataForm());
     }
 }
