@@ -12,6 +12,7 @@ public interface CommentMapper {
 
 
     Comment fromCreateOrUpdateCommentDto(CreateOrUpdateCommentDto dto);
+    void updateCommentFromDto(CreateOrUpdateCommentDto dto, @MappingTarget Comment comment);
     CreateOrUpdateCommentDto toCreateOrUpdateCommentDto(Comment comment);
     @Mappings({
             @Mapping(source = "author",target = "user.id"),

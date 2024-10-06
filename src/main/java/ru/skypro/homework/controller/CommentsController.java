@@ -108,7 +108,7 @@ public class CommentsController {
             @ApiResponse(responseCode = "404", description = "Not Found", content = @Content)
     })
     @DeleteMapping("/{commentId}")
-    @PreAuthorize("hasRole('ADMIN') and @commentService.isCommentBelongsThisUser(authentication.principal.name,#adId,#commentId)")
+    @PreAuthorize("hasRole('ADMIN')")
              // Разрешен вызов эндпоинта Админу и пользователю
     public ResponseEntity<Void> deleteComment(
             @PathVariable("adId") int adId,
@@ -139,8 +139,7 @@ public class CommentsController {
             @ApiResponse(responseCode = "404", description = "Not Found", content = @Content)
     })
     @PatchMapping("/{commentId}")
-    @PreAuthorize("hasRole('USER') and @commentService.isCommentBelongsThisUser(authentication.principal.name,#adId,#commentId)" +
-            " or hasRole('ADMIN')") // Разрешен вызов эндпоинта Админу и пользователю
+    @PreAuthorize("hasRole('USER') and @commentService.isCommentBelongsThisUser(authentication.principal.name,#adId,#commentId) or hasRole('ADMIN')") // Разрешен вызов эндпоинта Админу и пользователю
     public ResponseEntity<CommentDto> updateComment(
             @PathVariable("adId") int adId,
             @PathVariable("commentId") Long commentId,
