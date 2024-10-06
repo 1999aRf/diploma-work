@@ -48,19 +48,6 @@ public interface AdMapper {
     })
     ExtendedAd toExtendedAd(Ad ad);
 
-    @Mappings({
-            @Mapping(source = "pk", target = "id"),
-            @Mapping(source = "authorFirstName", target = "user.firstName"),
-            @Mapping(source = "authorLastName", target = "user.lastName"),
-            @Mapping(source = "description", target = "description"),
-            @Mapping(source = "email", target = "user.email"),
-            @Mapping(source = "image", target = "imageAd.filePath"),
-            @Mapping(source = "phone", target = "user.phone"),
-            @Mapping(source = "price", target = "price"),
-            @Mapping(source = "title", target = "title")
-    })
-    Ad fromExtendedAd(ExtendedAd dto);
-
 
 
 }

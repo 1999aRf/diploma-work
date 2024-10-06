@@ -19,6 +19,8 @@ import ru.skypro.homework.dto.UserDto;
 import ru.skypro.homework.model.User;
 import ru.skypro.homework.service.UserService;
 
+import java.io.IOException;
+
 /**
  * REST-контроллер для управления пользователями.
  * Обрабатывает запросы на обновление информации о пользователе, его пароля и аватара.
@@ -133,9 +135,9 @@ public class UserController {
                     content = @Content)
     })
     @PatchMapping(value = "/me/image",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> updateUserImage(@RequestParam("image") MultipartFile image) {
+    public ResponseEntity<String> updateUserImage(@RequestParam("image") MultipartFile image) throws IOException {
         log.info("Обновление аватара пользователя");
-        // TODO: Логика в методе класса обновления аватара
+        userService.updateUserImage(image);
         return ResponseEntity.ok("User image updated successfully.");
     }
 }

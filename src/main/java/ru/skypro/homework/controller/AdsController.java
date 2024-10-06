@@ -58,7 +58,6 @@ public class AdsController {
     })
     @GetMapping()
     public ResponseEntity<AdsDto> getAllAds() {
-        // TODO: Дополнить логику получения всех объявлений в сервисе получения всех объявлений
         return ResponseEntity.ok(adsService.getAllAds());
     }
 

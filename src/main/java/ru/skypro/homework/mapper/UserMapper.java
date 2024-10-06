@@ -42,7 +42,7 @@ public interface UserMapper {
             @Mapping(source = "lastName", target = "lastName"),
             @Mapping(source = "phone", target = "phone"),
             @Mapping(source = "role", target = "role"),
-            @Mapping(source = "imageUser", target = "image")
+            @Mapping(source = "imageUser.filePath", target = "image")
 
     })
     UserDto toUserDto(User user);
@@ -54,7 +54,7 @@ public interface UserMapper {
             @Mapping(source = "lastName", target = "lastName"),
             @Mapping(source = "phone", target = "phone"),
             @Mapping(source = "role", target = "role"),
-            @Mapping(source = "image", target = "imageUser")
+            @Mapping(source = "image", target = "imageUser.filePath")
 
     })
     User toEntity(UserDto userDto);
@@ -72,16 +72,6 @@ public interface UserMapper {
     })
     User fromUpdatedUserDtoToUser(UpdateUserDto dto, @MappingTarget User user);
 
-    @Mappings(value = {
-            @Mapping(target = "id", constant = "0"),
-            @Mapping(target = "email", expression = "java(userDetails.getUsername())"),
-            @Mapping(target = "firstName", constant = "firstName"),
-            @Mapping(target = "lastName", constant = "lastName"),
-            @Mapping(target = "phone", constant = "+7 (111) 111-11-11"),
-            @Mapping(target = "role", expression = "java(Role.USER)"),
-            @Mapping(target = "imageUser", ignore = true)
-    })
-    User userDetailsToUser(UserDetails userDetails);
 
     UpdateUserDto toUpdateUserDto(User user);
 }
