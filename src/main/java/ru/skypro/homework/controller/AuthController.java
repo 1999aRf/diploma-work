@@ -1,7 +1,16 @@
 package ru.skypro.homework.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -18,17 +27,37 @@ import ru.skypro.homework.service.AuthService;
 @RequiredArgsConstructor
 public class AuthController {
 
+
     private final AuthService authService;
 
+    @Operation(summary = "Авторизация пользователя",tags = "Авторизация")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+            description = "OK",
+            content = @Content),
+            @ApiResponse(responseCode = "401",
+            description = "Unauthorized",
+            content = @Content)
+    })
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Login login) {
+    public ResponseEntity<?> login( @RequestBody Login login) {
         if (authService.login(login.getUsername(), login.getPassword())) {
             return ResponseEntity.ok().build();
+
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
 
+    @Operation(summary = "Регистрация пользователя",tags = "Регистрация")
+    @ApiResponses(value =  {
+            @ApiResponse(responseCode = "201",
+                    description = "created",
+            content = @Content),
+            @ApiResponse(responseCode = "400",
+            description = "bad request",
+            content = @Content)
+    })
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody Register register) {
         if (authService.register(register)) {
